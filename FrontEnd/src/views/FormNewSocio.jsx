@@ -1,17 +1,27 @@
 import { Form, Input, Button } from "antd";
 import { useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
+import axios from "axios";
 
 export default function FormNewSocio() {
   const notify = () => toast.success("Socio registrado con éxito");
   const navigate = useNavigate();
 
-  const onFinish = (data) => {
-    console.log(data);
-    notify();
-    setTimeout(() => {
-      navigate("/");
-    }, 2000);
+  const onFinish = async (values) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/adm_clubes/clientes",
+        values
+      );
+      if (response.data) {
+        notify();
+        setTimeout(() => {
+          navigate("/");
+        }, 2000);
+      }
+    } catch (error) {
+      console.log("Algo falló", error);
+    }
   };
 
   return (
