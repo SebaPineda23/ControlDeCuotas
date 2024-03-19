@@ -7,10 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
-@RequestMapping("/prueba/clientes")
+@RequestMapping("/adm_clubes/clientes")
+@CrossOrigin("*")
 public class ClienteController {
 
     private final ClienteService clienteService;

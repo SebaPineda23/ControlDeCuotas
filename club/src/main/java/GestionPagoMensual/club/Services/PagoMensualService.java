@@ -14,13 +14,9 @@ import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
-import java.util.Timer;
-import java.util.TimerTask;
 
 
 @Service
@@ -67,8 +63,6 @@ public class PagoMensualService {
 
             pagoMensual.setFechaCambioEstado(LocalDateTime.now()); // Se actualiza la fecha de cambio de estado
 
-            String fechaStr = pagoMensual.getFecha();
-            LocalDate fechaPago = LocalDate.parse(fechaStr, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
 
             clienteRepository.save(cliente);

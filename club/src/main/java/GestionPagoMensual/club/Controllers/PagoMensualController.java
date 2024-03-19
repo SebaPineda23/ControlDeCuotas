@@ -10,7 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("prueba/pago_mensuales")
+@RequestMapping("/adm_clubes/pago_mensuales")
+@CrossOrigin("*")
 public class PagoMensualController {
 
     @Autowired

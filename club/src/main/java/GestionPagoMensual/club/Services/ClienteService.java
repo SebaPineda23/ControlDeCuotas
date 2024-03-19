@@ -2,12 +2,9 @@ package GestionPagoMensual.club.Services;
 
 import GestionPagoMensual.club.Entitys.Cliente;
 import GestionPagoMensual.club.Entitys.Estado;
-import GestionPagoMensual.club.Entitys.PagoMensual;
 import GestionPagoMensual.club.Repositories.ClienteRepository;
-import GestionPagoMensual.club.Repositories.PagoMensualRepository;
-import jakarta.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,14 +14,11 @@ import java.util.Optional;
 public class ClienteService {
     @Autowired
     private ClienteRepository clienteRepository;
-    @Autowired
-    private PagoMensualRepository pagoMensualRepository;
 
 
     public List<Cliente> obtenerTodosLosClientes() {
         return clienteRepository.findAll();
     }
-
     public Cliente obtenerClientePorId(Long clienteId) throws Exception {
         Optional<Cliente> clienteOptional = clienteRepository.findById(clienteId);
         if (clienteOptional.isPresent()) {
