@@ -15,11 +15,10 @@ import java.time.LocalDateTime;
 @Entity
 public class PagoMensual {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String fecha;
     private double monto;
-    private LocalDateTime fechaCambioEstado;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "cliente_id")
     private Cliente cliente;

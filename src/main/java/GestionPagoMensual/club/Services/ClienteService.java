@@ -33,8 +33,20 @@ public class ClienteService {
             throw new Exception("Cliente no encontrado con ID: " + clienteId);
         }
     }
+    public List<Cliente> buscarClientesPorLetras(String letras) {
+        return clienteRepository.findByNombreContainingOrApellidoContaining(letras, letras);
+    }
+   // public List<Cliente> buscarClientePorNombreYApellido(String nombre, String apellido) {
+   //     return clienteRepository.findByNombreAndApellido(nombre, apellido);
+  //  }
 
-    public Cliente crearCliente(Cliente cliente) {
+    public Cliente crearCliente(Cliente cliente) throws Exception{
+        // Verificar si ya existe un cliente con el mismo DNI
+        Cliente clienteExistente = clienteRepository.findByDni(cliente.getDni());
+        if (clienteExistente != null) {
+            // Si ya existe un cliente con el mismo DNI, lanzar una excepción o manejar el caso apropiadamente
+            throw new Exception("El DNI ya está registrado");
+        }
         cliente.setEstado(Estado.NO_PAGO);
         return clienteRepository.save(cliente);
     }

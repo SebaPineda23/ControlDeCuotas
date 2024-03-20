@@ -1,6 +1,7 @@
 package GestionPagoMensual.club.Controllers;
 
 import GestionPagoMensual.club.Entitys.Cliente;
+import GestionPagoMensual.club.ManejoErrores.DniExistenteException;
 import GestionPagoMensual.club.Services.ClienteService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,11 +32,26 @@ public class ClienteController {
         Cliente cliente = clienteService.obtenerClientePorId(clienteId);
         return new ResponseEntity<>(cliente, HttpStatus.OK);
     }
+    @GetMapping("/buscarCliente")
+    public List<Cliente> buscarClientesPorLetras(
+            @RequestParam("letras") String letras) {
+        return clienteService.buscarClientesPorLetras(letras);
+    }
+    //@GetMapping("/nombreYapellido")
+    //public Cliente buscarClientePorNombreYApellido(
+           // @RequestParam("nombre") String nombre,
+            //@RequestParam("apellido") String apellido) {
+       // return clienteService.buscarClientePorNombreYApellido(nombre, apellido);
+  //  }
 
     @PostMapping
-    public ResponseEntity<Cliente> crearCliente(@RequestBody Cliente cliente) {
-        Cliente nuevoCliente = clienteService.crearCliente(cliente);
-        return new ResponseEntity<>(nuevoCliente, HttpStatus.CREATED);
+    public ResponseEntity<Cliente> crearCliente(@RequestBody Cliente cliente) throws Exception {
+        try {
+            Cliente nuevoCliente = clienteService.crearCliente(cliente);
+            return new ResponseEntity<>(nuevoCliente, HttpStatus.CREATED);
+        } catch (DniExistenteException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
 
