@@ -17,11 +17,6 @@ public class PagoMensualController {
     @Autowired
     private PagoMensualService pagoMensualService;
 
-    @PostMapping
-    public ResponseEntity<PagoMensual> crearFacturaMensual(@RequestBody PagoMensual facturaMensual) {
-        PagoMensual nuevaFacturaMensual = pagoMensualService.guardarFacturaMensual(facturaMensual);
-        return new ResponseEntity<>(nuevaFacturaMensual, HttpStatus.CREATED);
-    }
     @PostMapping("/{clienteId}/pagos")
     public ResponseEntity<String> crearPago(
             @PathVariable Long clienteId,

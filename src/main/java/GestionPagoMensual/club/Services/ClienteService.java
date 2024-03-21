@@ -33,12 +33,13 @@ public class ClienteService {
             throw new Exception("Cliente no encontrado con ID: " + clienteId);
         }
     }
-    public List<Cliente> buscarClientesPorLetras(String letras) {
-        return clienteRepository.findByNombreContainingOrApellidoContaining(letras, letras);
+    public List<Cliente> buscarClientesPorLetras(String letras1, String letras2) {
+        if (letras1 != null && !letras1.isEmpty() && letras2 != null && !letras2.isEmpty()) {
+            return clienteRepository.findByNombreContainingOrApellidoContaining(letras1, letras2);
+        } else {
+            return null; // O devolver una lista vacía, dependiendo de los requisitos
+        }
     }
-   // public List<Cliente> buscarClientePorNombreYApellido(String nombre, String apellido) {
-   //     return clienteRepository.findByNombreAndApellido(nombre, apellido);
-  //  }
 
     public Cliente crearCliente(Cliente cliente) throws Exception{
         // Verificar si ya existe un cliente con el mismo DNI

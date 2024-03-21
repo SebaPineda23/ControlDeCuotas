@@ -36,7 +36,6 @@ dependencies {
 	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
 // https://mvnrepository.com/artifact/org.hibernate/hibernate-envers
 	implementation 'org.hibernate:hibernate-envers:6.4.1.Final'
-
 }
 
 tasks.named('test') {

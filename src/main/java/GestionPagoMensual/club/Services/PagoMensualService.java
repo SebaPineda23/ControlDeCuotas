@@ -34,10 +34,6 @@ public class PagoMensualService {
     }
 
 
-    public PagoMensual guardarFacturaMensual(PagoMensual pagoMensual) {
-        return pagoMensualRepository.save(pagoMensual);
-    }
-
     public List<PagoMensual> obtenerTodasLasFacturasMensuales() {
         return pagoMensualRepository.findAll();
     }
