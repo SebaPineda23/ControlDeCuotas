@@ -19,7 +19,7 @@ const sociosSlice = createSlice({
 })
 
 export const getAllSocios = (state) => state.socios.allSocios;
-export const getSociosFiltered = (state) => state.socios.sociosFiltered;
+export const getSociosFiltered = (state) => state.socios.sociosFiltered
 
 export const { setAllSocios, setFilterSocios } = sociosSlice.actions
 

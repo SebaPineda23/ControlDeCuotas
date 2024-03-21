@@ -26,7 +26,7 @@ export default function FormNewSocio() {
 
   return (
     <>
-      <div className="flex justify-center">
+      <div className="flex justify-center items-center w-11/12">
         <Form
           className="bg-white rounded-lg p-5"
           style={{ minWidth: "300px" }}

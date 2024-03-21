@@ -1,38 +1,20 @@
-import { Table } from "antd";
+import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { getAllSocios } from "../redux/setSocios";
 import useFilters from "../hooks/useFilters";
-import { useEffect } from "react";
+import useTabla from "../components/Tabla";
+import { Toaster } from "react-hot-toast";
+
 export default function AllSocios() {
-  const columns = [
-    {
-      title: "Nombre",
-      dataIndex: "nombre",
-    },
-    {
-      title: "Apellido",
-      dataIndex: "apellido",
-    },
-    {
-      title: "Dni",
-      dataIndex: "dni",
-    },
-    {
-      title: "Fecha de nacimiento",
-      dataIndex: "fechaDeNacimiento",
-    },
-    {
-      title: "Estado",
-      dataIndex: "estado",
-    },
-  ];
-  const { handleAllServices } = useFilters();
+  const { handleAllServices, notificarExito, notificarError } = useFilters();
   useEffect(() => {
     handleAllServices();
   }, []);
+
   const socios = useSelector(getAllSocios);
   const data = socios.map((socio) => ({
     key: socio.id,
+    id: socio.id,
     nombre: socio.nombre,
     apellido: socio.apellido,
     dni: socio.dni,
@@ -40,9 +22,12 @@ export default function AllSocios() {
     estado: socio.estado,
   }));
 
+  const Tabla = useTabla(data);
+
   return (
-    <div className="w-full mx-5 mb-2">
-      <Table columns={columns} dataSource={data} />
+    <div className="w-4/5 bg-gray-200 mx-5 mb-2 flex items-center justify-center rounded-lg flex-col">
+      <Tabla />
+      <Toaster />
     </div>
   );
 }
