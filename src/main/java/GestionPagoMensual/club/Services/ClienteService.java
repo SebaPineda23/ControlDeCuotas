@@ -53,9 +53,26 @@ public class ClienteService {
     }
 
     public Cliente actualizarCliente(Long clienteId, Cliente cliente) throws Exception {
-        if (clienteRepository.existsById(clienteId)) {
-            cliente.setId(clienteId);
-            return clienteRepository.save(cliente);
+        Optional<Cliente> clienteOptional = clienteRepository.findById(clienteId);
+        if (clienteOptional.isPresent()) {
+            Cliente clienteExistente = clienteOptional.get();
+
+            // Actualizar solo los campos necesarios
+            if (cliente.getNombre() != null) {
+                clienteExistente.setNombre(cliente.getNombre());
+            }
+            if (cliente.getApellido() != null) {
+                clienteExistente.setApellido(cliente.getApellido());
+            }
+            if (cliente.getDni() != null) {
+                clienteExistente.setDni(cliente.getDni());
+            }
+            if (cliente.getFecha_nacimiento() != null) {
+                clienteExistente.setFecha_nacimiento(cliente.getFecha_nacimiento());
+            }
+
+            // Guardar el cliente actualizado
+            return clienteRepository.save(clienteExistente);
         } else {
             throw new Exception("Cliente no encontrado con ID: " + clienteId);
         }

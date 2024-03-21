@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -57,7 +58,9 @@ public class ClienteController {
             Cliente nuevoCliente = clienteService.crearCliente(cliente);
             return new ResponseEntity<>(nuevoCliente, HttpStatus.CREATED);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Ya existe un Cliente registrado con el DNI ingresado, por favor vuelva a intentar");
+            Map<String, String> responseBody = new HashMap<>();
+            responseBody.put("error", "Ya existe un Cliente registrado con el DNI ingresado, por favor vuelva a intentar");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(responseBody);
         }
     }
 
