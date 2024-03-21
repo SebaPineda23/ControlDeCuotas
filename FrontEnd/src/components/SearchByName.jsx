@@ -1,5 +1,7 @@
 import { Input } from "antd";
 import useFilters from "../hooks/useFilters";
+import { Toaster } from "react-hot-toast";
+
 const { Search } = Input;
 export default function SearchByName() {
   const { searchByName } = useFilters();
@@ -11,6 +13,7 @@ export default function SearchByName() {
         allowClear
         rules={[{ required: true, message: "Por favor ingrese un dato" }]}
       />
+      <Toaster />
     </div>
   );
 }

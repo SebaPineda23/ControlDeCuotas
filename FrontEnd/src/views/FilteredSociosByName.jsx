@@ -3,6 +3,7 @@ import { getSociosFiltered } from "../redux/setSocios";
 import useTabla from "../components/Tabla";
 
 export default function FilteredSociosByName() {
+
   const socios = useSelector(getSociosFiltered);
   console.log(socios);
   const data = socios.map((socio) => ({

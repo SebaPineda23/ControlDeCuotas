@@ -1,6 +1,6 @@
 import { Form, Input, Button } from "antd";
 import { useNavigate } from "react-router-dom";
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 import axios from "axios";
 import useFilters from "../hooks/useFilters";
 

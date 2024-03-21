@@ -1,6 +1,7 @@
 import { useSelector } from "react-redux";
 import { getSociosFiltered } from "../redux/setSocios";
 import useTabla from "../components/Tabla";
+import { Toaster } from "react-hot-toast";
 
 export default function FilteredSociosById() {
   const socios = useSelector(getSociosFiltered);
@@ -18,6 +19,7 @@ export default function FilteredSociosById() {
   return (
     <div className="w-4/5 bg-gray-200 mx-5 mb-2 flex items-center justify-center">
       <Tabla />
+      <Toaster />
     </div>
   );
 }
