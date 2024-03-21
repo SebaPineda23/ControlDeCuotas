@@ -2,9 +2,11 @@ import { Form, Input, Button } from "antd";
 import { useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import axios from "axios";
+import useFilters from "../hooks/useFilters";
 
 export default function FormNewSocio() {
-  const notify = () => toast.success("Socio registrado con éxito");
+  const { notificarExito, notificarError } = useFilters();
+
   const navigate = useNavigate();
 
   const onFinish = async (values) => {
@@ -14,13 +16,13 @@ export default function FormNewSocio() {
         values
       );
       if (response.data) {
-        notify();
+        notificarExito("Usuario creado con exito");
         setTimeout(() => {
           navigate("/");
         }, 2000);
       }
     } catch (error) {
-      console.log("Algo falló", error);
+      notificarError(error);
     }
   };
 

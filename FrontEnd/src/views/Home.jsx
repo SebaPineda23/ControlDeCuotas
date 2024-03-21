@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from "antd";
 import SearchById from "../components/SearchById";
 import SearchByName from "../components/SearchByName";
+import { Toaster } from "react-hot-toast";
 export default function Home() {
   const navigate = useNavigate();
 
@@ -42,6 +43,7 @@ export default function Home() {
           Registrar Pago
         </Button>
       </div>
+      <Toaster />
     </div>
   );
 }

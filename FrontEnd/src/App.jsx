@@ -14,7 +14,7 @@ function App() {
         <Route path="/allSocios" element={<AllSocios />} />
         <Route path="/pago" element={<Pago />} />
         <Route path="/socio/:id" element={<FilteredSociosById />} />
-        <Route path="/socio/name/:value" element={<FilteredSociosByName />} />
+        <Route path="/socios/name/:value" element={<FilteredSociosByName />} />
       </Routes>
     </div>
   );

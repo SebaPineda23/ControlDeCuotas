@@ -9,6 +9,7 @@ export default function SearchByName() {
         placeholder="Buscar por nombre/apellido"
         onSearch={searchByName}
         allowClear
+        rules={[{ required: true, message: "Por favor ingrese un dato" }]}
       />
     </div>
   );

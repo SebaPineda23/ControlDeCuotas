@@ -7,7 +7,7 @@ import toast, { Toaster } from "react-hot-toast";
 const useFilters = () => {
     const dispatch = useDispatch();
     const notificarExito = (mensaje) => toast.success(mensaje);
-    const notificarError = (error) => toast.error(`Error: ${error.message}`);
+    const notificarError = (error) => toast.error(`${error.response.data}`);
     const navigate = useNavigate()
 
     const handleAllServices = async () => {
@@ -17,11 +17,10 @@ const useFilters = () => {
             notificarExito("Socios cargados exitosamente");
         } catch (error) {
             notificarError(error);
-            console.error("Error al cargar todos los servicios:", error);
         }
     };
     const searchById = async (value) => {
-        try {
+        try {   
             const response = await axios.get(
                 "http://localhost:8080/adm_clubes/clientes/" + value
             );
@@ -31,7 +30,7 @@ const useFilters = () => {
                 navigate(`/socio/${value}`);
             }
         } catch (error) {
-            console.log(error);
+            notificarError(error);
         }
     };
     
@@ -39,11 +38,11 @@ const useFilters = () => {
         try {
             const response = await axios.get("http://localhost:8080/adm_clubes/clientes/buscarCliente?letras="+value);
             if (response) {
+                navigate(`/socios/name/${value}`);
                 dispatch(setFilterSocios(response.data));
-                navigate(`/socio/name/${value}`);
             }
         } catch (error) {
-            console.log("Ocurrio un error: " + error);
+            notificarError(error);
         }
     }
     
