@@ -7,7 +7,7 @@ function useTabla(data, onRowClick) {
 
   const columns = [
     {
-      title: "N° de cliente",
+      title: "N° de socio",
       dataIndex: "id",
     },
     {
