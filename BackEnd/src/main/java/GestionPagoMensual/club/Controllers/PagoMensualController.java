@@ -10,24 +10,21 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("prueba/pago_mensuales")
+@RequestMapping("adm_clubes/pago_mensuales")
+@CrossOrigin("*")
 public class PagoMensualController {
 
     @Autowired
     private PagoMensualService pagoMensualService;
 
-    @PostMapping
-    public ResponseEntity<PagoMensual> crearFacturaMensual(@RequestBody PagoMensual facturaMensual) {
-        PagoMensual nuevaFacturaMensual = pagoMensualService.guardarFacturaMensual(facturaMensual);
-        return new ResponseEntity<>(nuevaFacturaMensual, HttpStatus.CREATED);
-    }
-    @PutMapping("/{clienteId}/pagos/{pagoMensualId}")
-    public ResponseEntity<String> actualizarPago(
-            @PathVariable Long pagoMensualId,
-            @PathVariable Long clienteId
+    @PostMapping("/{clienteId}/pagos")
+    public ResponseEntity<String> crearPago(
+            @PathVariable Long clienteId,
+            @RequestBody PagoMensual nuevoPago
     ) throws Exception {
-        pagoMensualService.actualizarPago(pagoMensualId, clienteId);
-        return ResponseEntity.ok("Pago registrado exitosamente para el cliente con ID: " + clienteId);
+        PagoMensual pagoCreado = pagoMensualService.guardarFacturaMensual(nuevoPago, clienteId);
+        return ResponseEntity.ok("Pago registrado exitosamente para el cliente con ID: " + clienteId +
+                ". ID del nuevo pago mensual: " + pagoCreado.getId());
     }
 
     @GetMapping
