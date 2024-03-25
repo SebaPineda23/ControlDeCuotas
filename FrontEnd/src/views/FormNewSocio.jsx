@@ -1,31 +1,10 @@
 import { Form, Input, Button } from "antd";
-import { useNavigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import axios from "axios";
 import useFilters from "../hooks/useFilters";
+import BackButton from "../components/BackButton";
 
 export default function FormNewSocio() {
-  const { notificarExito, notificarError } = useFilters();
-
-  const navigate = useNavigate();
-
-  const onFinish = async (values) => {
-    try {
-      const response = await axios.post(
-        "http://localhost:8080/adm_clubes/clientes",
-        values
-      );
-      if (response.data) {
-        notificarExito("Usuario creado con exito");
-        setTimeout(() => {
-          navigate("/");
-        }, 2000);
-      }
-    } catch (error) {
-      notificarError(error);
-    }
-  };
-
+  const { onFinish } = useFilters();
   return (
     <>
       <div className="flex justify-center items-center w-11/12">
@@ -70,6 +49,9 @@ export default function FormNewSocio() {
             <Input type="date" />
           </Form.Item>
           <div className="flex justify-center">
+            <div className="w-24 self-start p-1 rounded-2xl">
+              <BackButton />
+            </div>
             <Form.Item>
               <Button className="bg-blue-600" type="primary" htmlType="submit">
                 Registrar

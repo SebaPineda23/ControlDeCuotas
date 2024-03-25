@@ -2,7 +2,7 @@ import { Form, Input, Button } from "antd";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-
+import BackButton from "../components/BackButton";
 export default function Pago() {
   const notify = () => toast.success("Pago registrado con éxito");
   const navigate = useNavigate();
@@ -53,7 +53,10 @@ export default function Pago() {
         >
           <Input type="date" />
         </Form.Item>
-        <div className="flex justify-center">
+        <div className="flex justify-center flex-row w-full">
+          <div className="w-24 self-start p-1 rounded-2xl">
+            <BackButton />
+          </div>
           <Form.Item>
             <Button className="bg-blue-600" type="primary" htmlType="submit">
               Registrar

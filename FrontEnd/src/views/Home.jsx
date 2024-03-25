@@ -3,9 +3,10 @@ import { Button } from "antd";
 import SearchById from "../components/SearchById";
 import SearchByName from "../components/SearchByName";
 import { Toaster } from "react-hot-toast";
+import useFilters from "../hooks/useFilters";
+import { useEffect } from "react";
 export default function Home() {
   const navigate = useNavigate();
-
   const goForm = () => navigate("/nuevoSocio");
   const goAllSocios = () => navigate("/allSocios");
   const goPago = () => navigate("/pago");
@@ -20,7 +21,7 @@ export default function Home() {
           <SearchByName />
         </div>
       </div>
-      <div className="mt-5 flex flex-col xl:flex-row items-center">
+      <div className="mt-5 flex flex-col w-full sm:w-auto xl:flex-row sm:flex-row items-center">
         <Button
           onClick={goForm}
           className="bg-blue-700 hover:bg-gray-900 mb-2 w-full"
