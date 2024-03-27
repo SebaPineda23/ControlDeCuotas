@@ -31,6 +31,7 @@ const useFilters = () => {
     }
   };
   const searchById = async (value) => {
+    console.log(value);
     if (value.trim() !== "") {
       try {
         const response = await axios.get(

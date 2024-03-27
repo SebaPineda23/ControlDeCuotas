@@ -23,7 +23,7 @@ export default function NavBar() {
   return (
     <nav className="bg-gray-700 bg-opacity-95 flex justify-around items-center px-4 py-2 text-white w-full sticky top-0 z-50">
       <div className="flex items-center space-x-4 p-5 w-full justify-center">
-        <div className="hidden sm:flex">
+        <div className="hidden sm:flex space-x-4">
           <Button
             onClick={goForm}
             className="bg-blue-500 hover:bg-gray-900 mb-2 w-full mx-2"
@@ -42,7 +42,7 @@ export default function NavBar() {
         <div className="hidden sm:flex space-x-4">
           {menuItems.map((item) => (
             <div key={item.key} className="flex items-center">
-              <span className="ml-2">{item.component}</span>
+              <span className="ml-2 mb-2">{item.component}</span>
             </div>
           ))}
         </div>
