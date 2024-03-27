@@ -57,7 +57,7 @@ public class PagoMensualService {
         return pagoMensualRepository.save(nuevoPago);
     }
 
-    @Scheduled(cron = "0 0 */2 * *") // Se ejecuta cada 2 dias
+    @Scheduled(cron = "0 0 */2 * * ?") // Se ejecuta cada 2 dias
     public void revertirCambiosPagos() {
         // Obtener la fecha actual
         LocalDateTime fechaActual = LocalDateTime.now();
