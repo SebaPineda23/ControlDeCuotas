@@ -70,7 +70,6 @@ function Tabla({ data, onRowClick, handleHistorial }) {
       ),
     },
   ];
-
   return (
     <div className="w-full">
       <Table
@@ -80,6 +79,7 @@ function Tabla({ data, onRowClick, handleHistorial }) {
           key: item.id,
         }))}
         scroll={{ x: 240 }}
+        pagination={{ pageSize: 7 }}
       />
     </div>
   );

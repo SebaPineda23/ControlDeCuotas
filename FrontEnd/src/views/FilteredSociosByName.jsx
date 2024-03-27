@@ -1,11 +1,36 @@
 import { useSelector } from "react-redux";
 import { getSociosFiltered } from "../redux/setSocios";
-import useTabla from "../components/Tabla";
+import { Table } from "antd";
+import BackButton from "../components/BackButton";
 
 export default function FilteredSociosByName() {
-
   const socios = useSelector(getSociosFiltered);
-  console.log(socios);
+  const columns = [
+    {
+      title: "N° de socio",
+      dataIndex: "id",
+    },
+    {
+      title: "Nombre",
+      dataIndex: "nombre",
+    },
+    {
+      title: "Apellido",
+      dataIndex: "apellido",
+    },
+    {
+      title: "Dni",
+      dataIndex: "dni",
+    },
+    {
+      title: "Fecha de nacimiento",
+      dataIndex: "fechaDeNacimiento",
+    },
+    {
+      title: "Estado",
+      dataIndex: "estado",
+    },
+  ];
   const data = socios.map((socio) => ({
     key: socio.id,
     id: socio.id,
@@ -15,10 +40,12 @@ export default function FilteredSociosByName() {
     fechaDeNacimiento: socio.fecha_nacimiento,
     estado: socio.estado,
   }));
-  const Tabla = useTabla(data);
   return (
-    <div className="w-4/5 bg-gray-200 mx-5 mb-2 flex items-center justify-center">
-      <Tabla />
+    <div className="w-full bg-gray-200 mx-5 mb-2 flex flex-col items-center justify-center rounded-xl">
+      <div className="w-full flex items-start">
+        <BackButton />
+      </div>
+      <Table columns={columns} dataSource={data} className="w-full" />
     </div>
   );
 }

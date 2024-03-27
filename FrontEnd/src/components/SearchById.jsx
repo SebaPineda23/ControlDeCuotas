@@ -5,7 +5,11 @@ export default function SearchById() {
   const { searchById } = useFilters();
   return (
     <div className="bg-white rounded-lg w-full">
-      <Search placeholder="Buscar por id" onSearch={searchById} allowClear />
+      <Search
+        placeholder="Buscar por n° socio"
+        onSearch={searchById}
+        allowClear
+      />
     </div>
   );
 }
