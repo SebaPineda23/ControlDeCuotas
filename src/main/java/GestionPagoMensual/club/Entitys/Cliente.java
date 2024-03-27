@@ -26,7 +26,6 @@ public class Cliente {
     private String fecha_nacimiento;
     private LocalDateTime fechaCambioEstado;
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JsonIgnore
     private List<PagoMensual> cronogramaPagos;
     private Estado estado;
     private boolean pago;

@@ -11,5 +11,5 @@ import java.util.List;
 
 @Repository
 public interface PagoMensualRepository extends JpaRepository<PagoMensual, Long> {
-
+    List<PagoMensual> findByClienteId(Long idCliente);
 }

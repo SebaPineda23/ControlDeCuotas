@@ -38,8 +38,8 @@ public class PagoMensualService {
         return pagoMensualRepository.findAll();
     }
 
-    public Optional<PagoMensual> obtenerFacturaMensualPorId(Long id) {
-        return pagoMensualRepository.findById(id);
+    public List<PagoMensual> obtenerPagosMensualesPorIdCliente(Long idCliente) {
+        return pagoMensualRepository.findByClienteId(idCliente);
     }
 
     public void eliminarFacturaMensualPorId(Long id) {

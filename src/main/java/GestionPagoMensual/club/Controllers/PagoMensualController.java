@@ -45,13 +45,13 @@ public class PagoMensualController {
         return new ResponseEntity<>(pagoMensuales, HttpStatus.OK);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> obtenerFacturaMensualPorId(@PathVariable Long id) {
-        Optional<PagoMensual> pagoMensual = pagoMensualService.obtenerFacturaMensualPorId(id);
-        if (pagoMensual.isPresent()) {
-            return ResponseEntity.ok(pagoMensual.get());
+    @GetMapping("/cliente/{idCliente}/pagos")
+    public ResponseEntity<?> obtenerPagosMensualesPorIdCliente(@PathVariable Long idCliente) {
+        List<PagoMensual> pagosMensuales = pagoMensualService.obtenerPagosMensualesPorIdCliente(idCliente);
+        if (!pagosMensuales.isEmpty()) {
+            return ResponseEntity.ok(pagosMensuales);
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontró ningun registro de pagos mensuales asociados al Cliente con el ID: " + id);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontraron pagos mensuales asociados al Cliente con el ID: " + idCliente);
         }
     }
 
