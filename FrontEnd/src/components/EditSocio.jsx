@@ -5,9 +5,8 @@ import { getFilterSocios } from "../redux/setSocios";
 import useFilters from "../hooks/useFilters";
 
 export default function EditSocio() {
-  const infoSocio = useSelector(getFilterSocios);
+  const socio = useSelector(getFilterSocios);
   const { edit } = useFilters();
-
   return (
     <div className="flex justify-center items-center w-11/12">
       <Form
@@ -15,15 +14,15 @@ export default function EditSocio() {
         style={{ minWidth: "300px" }}
         onFinish={edit}
         initialValues={{
-          id: infoSocio.id,
-          nombre: infoSocio.nombre,
-          apellido: infoSocio.apellido,
-          dni: infoSocio.dni,
-          fecha_nacimiento: infoSocio.fechaDeNacimiento,
+          id: socio.id,
+          nombre: socio.nombre,
+          apellido: socio.apellido,
+          dni: socio.dni,
+          fecha_nacimiento: socio.fecha_nacimiento,
         }}
       >
         <Form.Item label="id" name="id">
-          {infoSocio.id}
+          {socio.id}
         </Form.Item>
         <Form.Item
           name="nombre"

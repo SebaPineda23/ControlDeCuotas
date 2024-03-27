@@ -1,58 +1,57 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllSocios, setEditSocio } from "../redux/setSocios";
+import { getAllSocios, getHistorial, setEditSocio } from "../redux/setSocios";
 import useFilters from "../hooks/useFilters";
-import useTabla from "../components/Tabla";
+import Tabla from "../components/Tabla";
 import { Toaster } from "react-hot-toast";
 import { Modal } from "antd";
 import EditSocio from "../components/EditSocio";
-import BackButton from "../components/BackButton";
+import Historial from "../components/Historial";
 
 export default function AllSocios() {
   const dispatch = useDispatch();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const showModal = () => {
-    setIsModalOpen(true);
-  }
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
-  const { handleAllServices } = useFilters();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isHistorialModalOpen, setIsHistorialModalOpen] = useState(false);
+  const { handleAllServices, historialDePago, allPagos } = useFilters();
+  const socios = useSelector(getAllSocios);
   useEffect(() => {
     handleAllServices();
+    allPagos();
   }, []);
-  const socios = useSelector(getAllSocios);
-  const data = socios.map((socio) => ({
-    key: socio.id,
-    id: socio.id,
-    nombre: socio.nombre,
-    apellido: socio.apellido,
-    dni: socio.dni,
-    fechaDeNacimiento: socio.fecha_nacimiento,
-    estado: socio.estado,
-  }));
 
-  const Tabla = useTabla(data, (socio) => {
+  const handleEditSocio = (socio) => {
     dispatch(setEditSocio(socio));
-    showModal();
-    console.log("Información del socio:", socio);
-  });
+    setIsEditModalOpen(true);
+  };
+
+  const handleHistorial = (historial) => {
+    setIsHistorialModalOpen(true);
+    historialDePago(historial);
+  };
 
   return (
-    <div className="w-4/5 bg-gray-200 mx-5 mb-2 flex items-center justify-center rounded-lg flex-col">
-      <div className="w-24 self-start p-2">
-        <BackButton />
-      </div>
-      <Tabla />
+    <div className="w-full mt-32 sm:mt-2 bg-gray-200 mb-2 flex items-center justify-center rounded-lg flex-col">
+      <Tabla
+        data={socios}
+        onRowClick={handleEditSocio}
+        handleHistorial={handleHistorial}
+      />
       <Modal
         title="Editar datos del socio"
-        open={isModalOpen}
-        onCancel={handleCancel}
+        open={isEditModalOpen}
+        onCancel={() => setIsEditModalOpen(false)}
         footer={null}
       >
         <EditSocio />
       </Modal>
-
+      <Modal
+        title="Historial de pago"
+        open={isHistorialModalOpen}
+        onCancel={() => setIsHistorialModalOpen(false)}
+        footer={null}
+      >
+        <Historial />
+      </Modal>
       <Toaster />
     </div>
   );
