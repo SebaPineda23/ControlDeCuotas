@@ -1,34 +1,15 @@
 import { Form, Input, Button } from "antd";
-import axios from "axios";
-import toast, { Toaster } from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 import BackButton from "../components/BackButton";
+import useFilters from "../hooks/useFilters";
 export default function Pago() {
-  const notify = () => toast.success("Pago registrado con éxito");
-  const navigate = useNavigate();
-
-  const onFinish = async (values) => {
-    try {
-      const response = await axios.post(
-        `https://controldecuotas.onrender.com/adm_clubes/pago_mensuales/${values.cliente_id}/pagos`,
-        values
-      );
-      if (response.data) {
-        notify();
-        setTimeout(() => {
-          navigate("/");
-        }, 2000);
-      }
-    } catch (error) {
-      console.log("Algo falló", error);
-    }
-  };
+  const { pago } = useFilters();
   return (
     <div className="flex justify-center">
       <Form
-        className="bg-white rounded-lg p-5"
+        className="bg-white rounded-lg p-10"
         style={{ minWidth: "300px" }}
-        onFinish={onFinish}
+        onFinish={pago}
       >
         <Form.Item
           name="cliente_id"

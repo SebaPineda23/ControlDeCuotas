@@ -2,12 +2,13 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getAllSocios,
+  setAllPagos,
   setAllSocios,
   setFilterSocios,
+  setHistorial,
 } from "../redux/setSocios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-
 
 const useFilters = () => {
   const dispatch = useDispatch();
@@ -81,6 +82,22 @@ const useFilters = () => {
       notificarError(error);
     }
   };
+  const pago = async (values) => {
+    try {
+      const response = await axios.post(
+        `https://controldecuotas.onrender.com/adm_clubes/pago_mensuales/${values.cliente_id}/pagos`,
+        values
+      );
+      if (response.data) {
+        notificarExito("Pago realizado con exito");
+        setTimeout(() => {
+          navigate("/");
+        }, 2000);
+      }
+    } catch (error) {
+      notificarError(error);
+    }
+  };
   const deleteSocios = async (value) => {
     try {
       await axios.delete(
@@ -94,7 +111,6 @@ const useFilters = () => {
     }
   };
   const edit = async (values) => {
-    console.log(values);
     try {
       const response = await axios.put(
         "https://controldecuotas.onrender.com/adm_clubes/clientes/" + values.id,
@@ -110,6 +126,36 @@ const useFilters = () => {
       notificarError(error);
     }
   };
+  const historialDePago = async (value) => {
+    try {
+      const response = await axios.get(
+        `https://controldecuotas.onrender.com/adm_clubes/pago_mensuales/cliente/${value.id}/pagos`
+      );
+      if (response.data) {
+        dispatch(setHistorial(response.data));
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
+        notificarError(error);
+        dispatch(setHistorial([]));
+      } else {
+        notificarError(error);
+      }
+    }
+  };
+  const allPagos = async (value) => {
+    try {
+      const response = await axios.get(
+        "https://controldecuotas.onrender.com/adm_clubes/pago_mensuales"
+      );
+      if (response) {
+        console.log(response.data);
+        dispatch(setAllPagos(response.data));
+      }
+    } catch (error) {
+      notificarError(error);
+    }
+  };
   return {
     handleAllServices,
     searchById,
@@ -119,6 +165,9 @@ const useFilters = () => {
     onFinish,
     deleteSocios,
     edit,
+    historialDePago,
+    pago,
+    allPagos,
   };
 };
 export default useFilters;
