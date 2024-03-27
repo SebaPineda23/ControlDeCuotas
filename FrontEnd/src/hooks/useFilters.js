@@ -21,7 +21,7 @@ const useFilters = () => {
   const handleAllServices = async () => {
     try {
       const { data } = await axios.get(
-        "https://controldecuotas.onrender.com/clientes"
+        "https://controldecuotas.onrender.com/adm_clubes/clientes"
       );
       dispatch(setAllSocios(data));
       notificarExito("Socios cargados exitosamente");
@@ -33,7 +33,7 @@ const useFilters = () => {
     if (value.trim() !== "") {
       try {
         const response = await axios.get(
-          "https://controldecuotas.onrender.com/clientes/" + value
+          "https://controldecuotas.onrender.com/adm_clubes/clientes/" + value
         );
         if (response) {
           const dataAsArray = [{ ...response.data }];
@@ -51,7 +51,8 @@ const useFilters = () => {
     if (value.trim() !== "") {
       try {
         const response = await axios.get(
-          "https://controldecuotas.onrender.com/buscarCliente?letras=" + value
+          "https://controldecuotas.onrender.com/adm_clubes/clientes/buscarCliente?letras=" +
+            value
         );
         if (response) {
           dispatch(setFilterSocios(response.data));
@@ -67,7 +68,7 @@ const useFilters = () => {
   const onFinish = async (values) => {
     try {
       const response = await axios.post(
-        "https://controldecuotas.onrender.com/clientes",
+        "https://controldecuotas.onrender.com/adm_clubes/clientes",
         values
       );
       if (response.data) {
@@ -83,7 +84,7 @@ const useFilters = () => {
   const deleteSocios = async (value) => {
     try {
       await axios.delete(
-        "https://controldecuotas.onrender.com/clientes/" + value.id
+        "https://controldecuotas.onrender.com/adm_clubes/clientes/" + value.id
       );
       const updatedSocios = socios.filter((socio) => socio.id !== value.id);
       dispatch(setAllSocios(updatedSocios));
@@ -96,7 +97,7 @@ const useFilters = () => {
     console.log(values);
     try {
       const response = await axios.put(
-        "https://controldecuotas.onrender.com/clientes/" + values.id,
+        "https://controldecuotas.onrender.com/adm_clubes/clientes/" + values.id,
         values
       );
       if (response.data) {
