@@ -57,13 +57,13 @@ public class PagoMensualService {
         return pagoMensualRepository.save(nuevoPago);
     }
 
-    @Scheduled(cron = "0 */30 * * * *") // Se ejecuta cada 5 minutos
+    @Scheduled(cron = "0 0 */2 * *") // Se ejecuta cada 2 dias
     public void revertirCambiosPagos() {
         // Obtener la fecha actual
         LocalDateTime fechaActual = LocalDateTime.now();
 
         // Obtener la fecha límite
-        LocalDateTime fechaLimite = LocalDateTime.now().minusMinutes(30); // Se puede modificar el tiempo
+        LocalDateTime fechaLimite = LocalDateTime.now().minusDays(2); // Se puede modificar el tiempo
 
         // Si la fecha actual es posterior a la fecha límite, se revierten los cambios
         if (fechaActual.isAfter(fechaLimite)) {
