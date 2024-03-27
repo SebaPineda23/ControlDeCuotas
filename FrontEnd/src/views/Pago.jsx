@@ -10,7 +10,7 @@ export default function Pago() {
   const onFinish = async (values) => {
     try {
       const response = await axios.post(
-        `http://localhost:8080/adm_clubes/pago_mensuales/${values.cliente_id}/pagos`,
+        `https://controldecuotas.onrender.com/adm_clubes/pago_mensuales/${values.cliente_id}/pagos`,
         values
       );
       if (response.data) {
