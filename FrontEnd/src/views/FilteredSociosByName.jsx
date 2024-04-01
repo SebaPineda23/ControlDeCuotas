@@ -45,7 +45,12 @@ export default function FilteredSociosByName() {
       <div className="w-full flex items-start">
         <BackButton />
       </div>
-      <Table columns={columns} dataSource={data} className="w-full" />
+      <Table
+        columns={columns}
+        dataSource={data}
+        scroll={{ x: 240 }}
+        className="w-full"
+      />
     </div>
   );
 }

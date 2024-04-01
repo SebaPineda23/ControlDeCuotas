@@ -31,7 +31,6 @@ const useFilters = () => {
     }
   };
   const searchById = async (value) => {
-    console.log(value);
     if (value.trim() !== "") {
       try {
         const response = await axios.get(
@@ -76,11 +75,11 @@ const useFilters = () => {
       if (response.data) {
         notificarExito("Usuario creado con exito");
         setTimeout(() => {
-          navigate("/");
+          navigate("/inicio");
         }, 2000);
       }
     } catch (error) {
-      notificarError(error);
+      notifyError(error.response.data.error);
     }
   };
   const pago = async (values) => {
@@ -92,7 +91,7 @@ const useFilters = () => {
       if (response.data) {
         notificarExito("Pago realizado con exito");
         setTimeout(() => {
-          navigate("/");
+          navigate("/inicio");
         }, 2000);
       }
     } catch (error) {
@@ -144,13 +143,12 @@ const useFilters = () => {
       }
     }
   };
-  const allPagos = async (value) => {
+  const allPagos = async () => {
     try {
       const response = await axios.get(
         "https://controldecuotas.onrender.com/adm_clubes/pago_mensuales"
       );
       if (response) {
-        console.log(response.data);
         dispatch(setAllPagos(response.data));
       }
     } catch (error) {

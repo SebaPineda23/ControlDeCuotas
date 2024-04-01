@@ -5,7 +5,7 @@ import SearchByName from "./SearchByName";
 import { useNavigate } from "react-router-dom";
 import { Button } from "antd";
 
-export default function NavBar() {
+export default function NavBar({ onLogout }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   const goForm = () => navigate("/nuevoSocio");
@@ -46,6 +46,13 @@ export default function NavBar() {
             </div>
           ))}
         </div>
+        <Button
+          onClick={onLogout}
+          className="bg-blue-500 hover:bg-gray-900 w-auto mb-2 mx-2"
+          type="primary"
+        >
+          Cerrar Sesion
+        </Button>
       </div>
       <div className="sm:hidden ">
         <button
