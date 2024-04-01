@@ -1,4 +1,4 @@
-import { Form, Input, Button } from "antd";
+import { Form, InputNumber, Button, Input } from "antd";
 import { Toaster } from "react-hot-toast";
 import useFilters from "../hooks/useFilters";
 import BackButton from "../components/BackButton";
@@ -37,9 +37,13 @@ export default function FormNewSocio() {
                 required: true,
                 message: "Por favor ingrese su documento de identidad",
               },
+              {
+                pattern: /^[0-9]+$/,
+                message: "Por favor ingrese solo números",
+              },
             ]}
           >
-            <Input />
+            <InputNumber className="w-full" />
           </Form.Item>
           <Form.Item
             name="fecha_nacimiento"

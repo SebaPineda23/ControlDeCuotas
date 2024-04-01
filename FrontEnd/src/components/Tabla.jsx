@@ -5,7 +5,11 @@ import useFilters from "../hooks/useFilters";
 
 function Tabla({ data, onRowClick, handleHistorial }) {
   const { deleteSocios } = useFilters();
-
+  const formatFecha = (fecha) => {
+    const partes = fecha.split("-");
+    const nuevaFecha = partes[2] + "/" + partes[1] + "/" + partes[0];
+    return nuevaFecha;
+  };
   const columns = [
     {
       title: "N° de socio",
@@ -29,6 +33,7 @@ function Tabla({ data, onRowClick, handleHistorial }) {
     {
       title: "Fecha de nacimiento",
       dataIndex: "fecha_nacimiento",
+      render: (fecha) => formatFecha(fecha),
     },
     {
       title: "Estado",
