@@ -1,18 +1,12 @@
 import React from "react";
-import { Button, Checkbox, Form, Input } from "antd";
-import { useNavigate } from "react-router-dom";
-export default function Login({ onLogin }) {
-  const navigate = useNavigate();
+import { Button, Form, Input } from "antd";
+import useFilters from "../hooks/useFilters";
+import { Toaster } from "react-hot-toast";
+
+export default function Login() {
+  const { handleLogin } = useFilters();
   const onFinish = (values) => {
-    if (
-      values.username === "prueba@gmail.com" &&
-      values.password === "prueba12345"
-    ) {
-      onLogin();
-      navigate("/inicio");
-    } else {
-      console.log("El usuario no existe o la contraseña se incorrecta");
-    }
+    handleLogin(values);
   };
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
@@ -43,7 +37,7 @@ export default function Login({ onLogin }) {
         rules={[
           {
             required: true,
-            message: "Ingrese un email!",
+            message: "Ingrese un email",
           },
         ]}
         className="w-full"
@@ -57,7 +51,7 @@ export default function Login({ onLogin }) {
         rules={[
           {
             required: true,
-            message: "Ingrese una contrasseña!",
+            message: "Ingrese una contraseña",
           },
         ]}
       >
@@ -87,6 +81,7 @@ export default function Login({ onLogin }) {
           Iniciar sesion
         </Button>
       </Form.Item>
+      <Toaster />
     </Form>
   );
 }
