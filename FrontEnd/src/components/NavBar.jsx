@@ -4,8 +4,9 @@ import SearchById from "./SearchById";
 import SearchByName from "./SearchByName";
 import { useNavigate } from "react-router-dom";
 import { Button } from "antd";
+import useFilters from "../hooks/useFilters";
 
-export default function NavBar({ onLogout }) {
+export default function NavBar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   const goForm = () => navigate("/nuevoSocio");
@@ -20,6 +21,7 @@ export default function NavBar({ onLogout }) {
       component: <SearchByName />,
     },
   ];
+  const { handleLogout } = useFilters();
   return (
     <nav className="bg-gray-700 bg-opacity-95 flex justify-around items-center px-4 py-2 text-white w-full sticky top-0 z-50">
       <div className="flex items-center space-x-4 p-5 w-full justify-center">
@@ -47,9 +49,9 @@ export default function NavBar({ onLogout }) {
           ))}
         </div>
         <Button
-          onClick={onLogout}
           className="bg-blue-500 hover:bg-gray-900 w-auto mb-2 mx-2"
           type="primary"
+          onClick={handleLogout}
         >
           Cerrar Sesion
         </Button>

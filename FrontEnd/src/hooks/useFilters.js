@@ -9,6 +9,13 @@ import {
 } from "../redux/setSocios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import {
+  login,
+  logout,
+  setAccess,
+  setPassword,
+  setUsername,
+} from "../redux/setUsuario";
 
 const useFilters = () => {
   const dispatch = useDispatch();
@@ -81,6 +88,25 @@ const useFilters = () => {
     } catch (error) {
       notifyError(error.response.data.error);
     }
+  };
+  const handleLogin = async (values) => {
+    try {
+      const response = await axios.post(
+        "https://controldecuotas.onrender.com/adm_clubes/usuario/login",
+        values
+      );
+      dispatch(setUsername(response.data.username));
+      dispatch(setPassword(response.data.password));
+      dispatch(setAccess(response.data.access));
+      dispatch(login());
+    } catch (error) {
+      console.log(error);
+      notificarError(error);
+    }
+  };
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate("/");
   };
   const pago = async (values) => {
     try {
@@ -167,6 +193,8 @@ const useFilters = () => {
     historialDePago,
     pago,
     allPagos,
+    handleLogin,
+    handleLogout,
   };
 };
 export default useFilters;

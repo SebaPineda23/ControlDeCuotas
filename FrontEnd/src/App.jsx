@@ -5,50 +5,40 @@ import Pago from "./views/Pago";
 import FilteredSociosById from "./views/FilteredSociosById";
 import FilteredSociosByName from "./views/FilteredSociosByName";
 import Login from "./views/Login";
-import { useState } from "react";
+import { useSelector } from "react-redux";
+import { getAccess } from "./redux/setUsuario";
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  const handleLogin = () => {
-    setIsLoggedIn(true);
-  };
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-  };
+  const access = useSelector(getAccess);
   return (
     <div className="bg-hero-pattern-2 object-cover w-full h-full min-h-screen flex items-center justify-center">
       <Routes>
         <Route
           path="/"
-          element={
-            isLoggedIn ? (
-              <Navigate to="/inicio" />
-            ) : (
-              <Login onLogin={handleLogin} />
-            )
-          }
+          element={access === true ? <Navigate to="/inicio" /> : <Login />}
         />
         <Route
           path="/inicio"
-          element={
-            isLoggedIn ? <Home onLogout={handleLogout} /> : <Navigate to="/" />
-          }
+          element={access === true ? <Home /> : <Navigate to="/" />}
         />
         <Route
           path="/nuevoSocio"
-          element={isLoggedIn ? <FormNewSocio /> : <Navigate to="/" />}
+          element={access === true ? <FormNewSocio /> : <Navigate to="/" />}
         />
         <Route
           path="/pago"
-          element={isLoggedIn ? <Pago /> : <Navigate to="/" />}
+          element={access === true ? <Pago /> : <Navigate to="/" />}
         />
         <Route
           path="/socio/:id"
-          element={isLoggedIn ? <FilteredSociosById /> : <Navigate to="/" />}
+          element={
+            access === true ? <FilteredSociosById /> : <Navigate to="/" />
+          }
         />
         <Route
           path="/socios/name/:value"
-          element={isLoggedIn ? <FilteredSociosByName /> : <Navigate to="/" />}
+          element={
+            access === true ? <FilteredSociosByName /> : <Navigate to="/" />
+          }
         />
       </Routes>
     </div>
