@@ -37,7 +37,7 @@ export default function Login() {
         rules={[
           {
             required: true,
-            message: "Ingrese un email",
+            message: "Ingrese un usuario",
           },
         ]}
         className="w-full"

@@ -49,7 +49,9 @@ const useFilters = () => {
           navigate(`/socio/${value}`);
         }
       } catch (error) {
-        notificarError(error);
+        if (error.response.status === 400) {
+          notifyError("No se encuentra un usuario con esa Id");
+        }
       }
     } else {
       notifyError("El campo de búsqueda está vacío");
