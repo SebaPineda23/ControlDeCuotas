@@ -18,6 +18,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -25,6 +26,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 
@@ -61,21 +64,38 @@ public class PagoMensualService {
         cliente.setPago(true);
         cliente.setFechaCambioEstado(LocalDateTime.now());
         nuevoPago.setCliente(cliente);
-        return pagoMensualRepository.save(nuevoPago);
-    }
-    @Async
-    public void programarRevertirEstado(Cliente cliente) {
-        try {
-            // Espera 1 día antes de revertir el estado a "NO_PAGO"
-            TimeUnit.DAYS.sleep(1);
+        PagoMensual pagoMensualGuardado = pagoMensualRepository.save(nuevoPago);
+
+        // Calcular la fecha de cambio de estado
+        LocalDateTime fechaCambioEstado = LocalDateTime.now().plusDays(1);
+
+        // Crear una tarea para cambiar el estado del cliente
+        Runnable cambiarEstadoCliente = () -> {
             cliente.setEstado(Estado.NO_PAGO);
-            cliente.setFechaCambioEstado(LocalDateTime.now());
-            eventPublisher.publishEvent(new EntityStateChangeEvent(cliente));
-        } catch (InterruptedException e) {
-            // Manejar interrupciones
-            Thread.currentThread().interrupt();
-        }
+            clienteRepository.save(cliente);
+        };
+
+        // Programar la tarea para que se ejecute en la fecha de cambio de estado
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        executorService.schedule(cambiarEstadoCliente, Duration.between(LocalDateTime.now(), fechaCambioEstado).toMillis(), TimeUnit.MILLISECONDS);
+
+        return pagoMensualGuardado;
     }
+
+
+//    @Async
+//    public void programarRevertirEstado(Cliente cliente) {
+//        try {
+//            // Espera 1 día antes de revertir el estado a "NO_PAGO"
+//            TimeUnit.DAYS.sleep(1);
+//            cliente.setEstado(Estado.NO_PAGO);
+//            cliente.setFechaCambioEstado(LocalDateTime.now());
+//            eventPublisher.publishEvent(new EntityStateChangeEvent(cliente));
+//        } catch (InterruptedException e) {
+//            // Manejar interrupciones
+//            Thread.currentThread().interrupt();
+//        }
+//    }
 
 //    @Scheduled(cron = "0 0 */2 * * ?") // Se ejecuta cada 2 días
 //    public void revertirCambiosPagos() {
