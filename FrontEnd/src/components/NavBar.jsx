@@ -48,13 +48,15 @@ export default function NavBar() {
             </div>
           ))}
         </div>
-        <Button
-          className="bg-blue-500 hover:bg-gray-900 w-auto mb-2 mx-2"
-          type="primary"
-          onClick={handleLogout}
-        >
-          Cerrar Sesion
-        </Button>
+        <div className="hidden sm:flex space-x-4">
+          <Button
+            className="bg-blue-500 hover:bg-gray-900 w-auto mb-2 mx-2"
+            type="primary"
+            onClick={handleLogout}
+          >
+            Cerrar Sesion
+          </Button>
+        </div>
       </div>
       <div className="sm:hidden ">
         <button
@@ -76,7 +78,7 @@ export default function NavBar() {
                 <span className="ml-2 w-full">{item.component}</span>
               </div>
             ))}
-            <div className="flex">
+            <div className="flex ">
               <Button
                 onClick={goForm}
                 className="bg-blue-700 hover:bg-gray-900 mb-2 w-full mx-2"
@@ -92,6 +94,13 @@ export default function NavBar() {
                 Registrar Pago
               </Button>
             </div>
+            <Button
+              className="bg-blue-500 hover:bg-gray-900 w-auto mb-2 mx-2"
+              type="primary"
+              onClick={handleLogout}
+            >
+              Cerrar Sesion
+            </Button>
           </div>
         </div>
       )}
