@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 
@@ -24,7 +25,7 @@ public class Cliente {
     private String apellido;
     private String dni;
     private String fecha_nacimiento;
-    private LocalDateTime fechaCambioEstado;
+    private ZonedDateTime fechaCambioEstado;
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<PagoMensual> cronogramaPagos;
     private Estado estado;

@@ -18,9 +18,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
@@ -60,27 +58,38 @@ public class PagoMensualService {
         Cliente cliente = clienteRepository.findById(clienteId)
                 .orElseThrow(() -> new Exception("Cliente no encontrado con ID: " + clienteId));
 
+        // Obtener la hora actual en la zona horaria del servidor de aplicaciones
+        ZonedDateTime horaActual = ZonedDateTime.now(ZoneId.systemDefault());
+
+        // Actualizar el estado del cliente
         cliente.setEstado(Estado.PAGO);
         cliente.setPago(true);
-        cliente.setFechaCambioEstado(LocalDateTime.now());
+        cliente.setFechaCambioEstado(horaActual);
         nuevoPago.setCliente(cliente);
+
+        // Guardar el pago mensual
         PagoMensual pagoMensualGuardado = pagoMensualRepository.save(nuevoPago);
 
-        // Calcular la fecha de cambio de estado
-        LocalDateTime fechaCambioEstado = LocalDateTime.now().plusDays(1);
+        // Calcular la fecha de cambio de estado del cliente (un día después)
+        ZonedDateTime fechaCambioEstadoCliente = horaActual.plusDays(1);
 
         // Crear una tarea para cambiar el estado del cliente
         Runnable cambiarEstadoCliente = () -> {
-            cliente.setEstado(Estado.NO_PAGO);
-            clienteRepository.save(cliente);
+            Cliente clienteParaActualizar = clienteRepository.findById(clienteId).orElse(null);
+            if (clienteParaActualizar != null) {
+                clienteParaActualizar.setEstado(Estado.NO_PAGO);
+                clienteRepository.save(clienteParaActualizar);
+            }
         };
 
         // Programar la tarea para que se ejecute en la fecha de cambio de estado
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-        executorService.schedule(cambiarEstadoCliente, Duration.between(LocalDateTime.now(), fechaCambioEstado).toMillis(), TimeUnit.MILLISECONDS);
+        long delayMillis = Duration.between(horaActual, fechaCambioEstadoCliente).toMillis();
+        executorService.schedule(cambiarEstadoCliente, delayMillis, TimeUnit.MILLISECONDS);
 
         return pagoMensualGuardado;
     }
+
 
 
 //    @Async
