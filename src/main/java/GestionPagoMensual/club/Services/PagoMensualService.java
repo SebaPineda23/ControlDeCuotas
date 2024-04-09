@@ -35,7 +35,6 @@ public class PagoMensualService {
     private ClienteRepository clienteRepository;
     @Autowired
     private ApplicationEventPublisher eventPublisher;
-    private LocalDateTime ultimaEjecucion = null;
 
     public PagoMensualService(PagoMensualRepository pagoMensualRepository, ClienteRepository clienteRepository) {
         this.pagoMensualRepository = pagoMensualRepository;
@@ -56,7 +55,6 @@ public class PagoMensualService {
     }
 
     public PagoMensual guardarFacturaMensual(PagoMensual nuevoPago, Long clienteId) throws Exception {
-        // Buscar el cliente por su ID
         Cliente cliente = clienteRepository.findById(clienteId)
                 .orElseThrow(() -> new Exception("Cliente no encontrado con ID: " + clienteId));
 
@@ -71,28 +69,25 @@ public class PagoMensualService {
 
         // Guardar el pago mensual
         PagoMensual pagoMensualGuardado = pagoMensualRepository.save(nuevoPago);
-        return pagoMensualGuardado;
-    }
 
-    @Scheduled(cron = "0 30 1 * * *") // Se ejecuta todos los días a la medianoche
-    public void revertirCambiosPagos() {
-        // Obtener la fecha actual
-        LocalDateTime fechaActual = LocalDateTime.now();
+        // Calcular la fecha de cambio de estado del cliente (un día después)
+        ZonedDateTime fechaCambioEstadoCliente = horaActual.plusMinutes(10);
 
-        // Verificar si han pasado 2 días desde la última ejecución (o si es la primera ejecución)
-        if (ultimaEjecucion == null || Duration.between(ultimaEjecucion, fechaActual).toMinutes() >= 30) {
-            // Obtener los clientes que se modificaron después del tiempo determinado
-            List<Cliente> clientesModificados = clienteRepository.findByFechaCambioEstadoAfter(ultimaEjecucion);
-
-            for (Cliente cliente : clientesModificados) {
-                cliente.setEstado(Estado.NO_PAGO);
-                cliente.setPago(false);
-                clienteRepository.save(cliente); // Se actualiza el cliente
+        // Crear una tarea para cambiar el estado del cliente
+        Runnable cambiarEstadoCliente = () -> {
+            Cliente clienteParaActualizar = clienteRepository.findById(clienteId).orElse(null);
+            if (clienteParaActualizar != null) {
+                clienteParaActualizar.setEstado(Estado.NO_PAGO);
+                clienteRepository.save(clienteParaActualizar);
             }
+        };
 
-            // Actualizar la marca de tiempo de la última ejecución
-            ultimaEjecucion = fechaActual;
-        }
+        // Programar la tarea para que se ejecute en la fecha de cambio de estado
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        long delayMillis = Duration.between(horaActual, fechaCambioEstadoCliente).toMillis();
+        executorService.schedule(cambiarEstadoCliente, delayMillis, TimeUnit.MILLISECONDS);
+
+        return pagoMensualGuardado;
     }
 }
 
