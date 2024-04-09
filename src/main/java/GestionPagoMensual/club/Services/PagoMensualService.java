@@ -71,7 +71,7 @@ public class PagoMensualService {
         PagoMensual pagoMensualGuardado = pagoMensualRepository.save(nuevoPago);
 
         // Calcular la fecha de cambio de estado del cliente (un día después)
-        ZonedDateTime fechaCambioEstadoCliente = horaActual.plusMinutes(15);
+        ZonedDateTime fechaCambioEstadoCliente = horaActual.plusMinutes(30);
 
         // Crear una tarea para cambiar el estado del cliente
         Runnable cambiarEstadoCliente = () -> {
