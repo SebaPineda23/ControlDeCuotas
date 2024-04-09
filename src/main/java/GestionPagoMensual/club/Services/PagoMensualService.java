@@ -74,7 +74,7 @@ public class PagoMensualService {
         return pagoMensualGuardado;
     }
 
-    @Scheduled(cron = "0 0 1 * * *") // Se ejecuta todos los días a la medianoche
+    @Scheduled(cron = "0 30 1 * * *") // Se ejecuta todos los días a la medianoche
     public void revertirCambiosPagos() {
         // Obtener la fecha actual
         LocalDateTime fechaActual = LocalDateTime.now();
