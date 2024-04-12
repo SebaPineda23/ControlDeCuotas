@@ -74,7 +74,15 @@ public class ClienteController {
             return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
-
+    @PutMapping("/cliente/{id}/estadoNoPago")
+    public ResponseEntity<Cliente> actualizarEstado(@PathVariable Long id){
+        try{
+            Cliente clienteEstadoNoPago = clienteService.actualizarEstado(id);
+            return new ResponseEntity<>(clienteEstadoNoPago, HttpStatus.OK);
+        }catch(Exception e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
     @DeleteMapping("/{clienteId}")
     public ResponseEntity<Void> borrarCliente(@PathVariable Long clienteId) {
         try {

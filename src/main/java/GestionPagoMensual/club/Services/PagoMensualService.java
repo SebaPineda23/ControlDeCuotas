@@ -70,23 +70,6 @@ public class PagoMensualService {
         // Guardar el pago mensual
         PagoMensual pagoMensualGuardado = pagoMensualRepository.save(nuevoPago);
 
-        // Calcular la fecha de cambio de estado del cliente (un día después)
-        ZonedDateTime fechaCambioEstadoCliente = horaActual.plusMinutes(30);
-
-        // Crear una tarea para cambiar el estado del cliente
-        Runnable cambiarEstadoCliente = () -> {
-            Cliente clienteParaActualizar = clienteRepository.findById(clienteId).orElse(null);
-            if (clienteParaActualizar != null) {
-                clienteParaActualizar.setEstado(Estado.NO_PAGO);
-                clienteRepository.save(clienteParaActualizar);
-            }
-        };
-
-        // Programar la tarea para que se ejecute en la fecha de cambio de estado
-        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-        long delayMillis = Duration.between(horaActual, fechaCambioEstadoCliente).toMillis();
-        executorService.schedule(cambiarEstadoCliente, delayMillis, TimeUnit.MILLISECONDS);
-
         return pagoMensualGuardado;
     }
 }

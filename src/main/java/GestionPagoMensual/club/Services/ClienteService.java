@@ -77,7 +77,16 @@ public class ClienteService {
             throw new Exception("Cliente no encontrado con ID: " + clienteId);
         }
     }
-
+    public Cliente actualizarEstado(Long clienteId) throws Exception {
+        Optional<Cliente> clienteOptional = clienteRepository.findById(clienteId);
+        if (clienteOptional.isPresent()) {
+            Cliente clienteExistente = clienteOptional.get();
+            clienteExistente.setEstado(Estado.NO_PAGO);
+            return clienteRepository.save(clienteExistente);
+        } else {
+            throw new ResourceNotFoundException("Cliente no encontrado con ID: " + clienteId);
+        }
+    }
     public void borrarCliente(Long clienteId) throws Exception {
         if (clienteRepository.existsById(clienteId)) {
             clienteRepository.deleteById(clienteId);
