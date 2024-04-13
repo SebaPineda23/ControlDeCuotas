@@ -2,14 +2,20 @@ import { Form, Input, Button } from "antd";
 import { Toaster } from "react-hot-toast";
 import BackButton from "../components/BackButton";
 import useFilters from "../hooks/useFilters";
+
 export default function Pago() {
   const { pago } = useFilters();
+
+  const handleSubmit = (values) => {
+    pago(values);
+  };
+
   return (
     <div className="flex justify-center">
       <Form
         className="bg-white rounded-lg p-10"
         style={{ minWidth: "300px" }}
-        onFinish={pago}
+        onFinish={handleSubmit}
       >
         <Form.Item
           name="cliente_id"

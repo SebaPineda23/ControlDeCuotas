@@ -41,6 +41,7 @@ export const {
   setEditSocio,
   setHistorial,
   setAllPagos,
+  setStates,
 } = sociosSlice.actions;
 
 export default sociosSlice.reducer

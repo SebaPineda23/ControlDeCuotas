@@ -12,10 +12,10 @@ export default function AllSocios() {
   const dispatch = useDispatch();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isHistorialModalOpen, setIsHistorialModalOpen] = useState(false);
-  const { handleAllServices, historialDePago, allPagos } = useFilters();
+  const { handleAllSocios, historialDePago, allPagos } = useFilters();
   const socios = useSelector(getAllSocios);
   useEffect(() => {
-    handleAllServices();
+    handleAllSocios();
     allPagos();
   }, []);
 
