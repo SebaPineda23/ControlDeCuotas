@@ -59,18 +59,40 @@ public class PagoMensualService {
                 .orElseThrow(() -> new Exception("Cliente no encontrado con ID: " + clienteId));
 
         // Obtener la hora actual en la zona horaria del servidor de aplicaciones
-        ZonedDateTime horaActual = ZonedDateTime.now(ZoneId.systemDefault());
+        ZonedDateTime horaActualLocal = ZonedDateTime.now(ZoneId.systemDefault());
 
-        // Actualizar el estado del cliente
+        // Obtener la fecha de creación del pago mensual
+        ZonedDateTime fechaCreacionPago = horaActualLocal;
         cliente.setEstado(Estado.PAGO);
         cliente.setPago(true);
-        cliente.setFechaCambioEstado(horaActual);
+        cliente.setFechaCambioEstado(horaActualLocal);
         nuevoPago.setCliente(cliente);
 
         // Guardar el pago mensual
         PagoMensual pagoMensualGuardado = pagoMensualRepository.save(nuevoPago);
 
+        // Programar una tarea para verificar si ha pasado una hora desde la creación del pago mensual
+        Runnable verificarEstadoCliente = () -> {
+            ZonedDateTime horaActual = ZonedDateTime.now(ZoneId.systemDefault());
+            long horasTranscurridas = Duration.between(fechaCreacionPago, horaActual).toHours();
+            if (horasTranscurridas >= 1) { // Cambiar estado después de 1 hora
+                cambiarEstadoCliente(clienteId);
+            }
+        };
+
+        // Programar la tarea para que se ejecute cada hora
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        executorService.scheduleAtFixedRate(verificarEstadoCliente, 0, 1, TimeUnit.HOURS);
+
         return pagoMensualGuardado;
+    }
+
+    private void cambiarEstadoCliente(Long clienteId) {
+        Cliente clienteParaActualizar = clienteRepository.findById(clienteId).orElse(null);
+        if (clienteParaActualizar != null) {
+            clienteParaActualizar.setEstado(Estado.NO_PAGO);
+            clienteRepository.save(clienteParaActualizar);
+        }
     }
 }
 
