@@ -24,34 +24,6 @@ const useFilters = () => {
   const notifyError = (mensaje) => toast.error(mensaje);
   const socios = useSelector(getAllSocios);
   const navigate = useNavigate();
-  const cambioDeEstado = async (id, estado) => {
-    let contador = 0;
-
-    const realizarPeticion = async () => {
-      try {
-        const response = await axios.put(
-          `https://adm_clubes/clientes/cliente/${id}/estadoNoPago`
-        );
-        console.log("Petición realizada con éxito:", response.data);
-      } catch (error) {
-        console.error("Error al realizar la petición:", error);
-      }
-    };
-
-    const aumentarContador = () => {
-      contador++;
-      console.log("Contador:", contador);
-      if (contador % 32 === 0 && estado === "PAGO") {
-        realizarPeticion();
-      }
-    };
-
-    const intervalo = setInterval(aumentarContador, 86400000);
-
-    if (!intervalo && estado === "PAGO") {
-      aumentarContador();
-    }
-  };
 
   const handleAllSocios = async () => {
     try {
@@ -146,7 +118,6 @@ const useFilters = () => {
       if (response.data) {
         notificarExito("Pago realizado con exito");
         setTimeout(() => {
-          cambioDeEstado(values.cliente_id, "PAGO");
           navigate("/inicio");
         }, 2000);
       }
