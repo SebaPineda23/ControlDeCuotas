@@ -68,21 +68,22 @@ public class PagoMensualService {
         cliente.setFechaCambioEstado(horaActualLocal);
         nuevoPago.setCliente(cliente);
 
+
         // Guardar el pago mensual
         PagoMensual pagoMensualGuardado = pagoMensualRepository.save(nuevoPago);
 
-        // Programar una tarea para verificar si ha pasado una hora desde la creación del pago mensual
+        // Programar una tarea para verificar si ha pasado un día desde la creación del pago mensual
         Runnable verificarEstadoCliente = () -> {
             ZonedDateTime horaActual = ZonedDateTime.now(ZoneId.systemDefault());
-            long horasTranscurridas = Duration.between(fechaCreacionPago, horaActual).toHours();
-            if (horasTranscurridas >= 1) { // Cambiar estado después de 1 hora
+            long diasTranscurridos = Duration.between(fechaCreacionPago.toLocalDate().atStartOfDay(), horaActual.toLocalDate().atStartOfDay()).toDays();
+            if (diasTranscurridos >= 1) { // Cambiar estado después de 1 día
                 cambiarEstadoCliente(clienteId);
             }
         };
 
-        // Programar la tarea para que se ejecute cada hora
+        // Programar la tarea para que se ejecute diariamente
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-        executorService.scheduleAtFixedRate(verificarEstadoCliente, 0, 1, TimeUnit.HOURS);
+        executorService.scheduleAtFixedRate(verificarEstadoCliente, 0, 1, TimeUnit.DAYS);
 
         return pagoMensualGuardado;
     }
