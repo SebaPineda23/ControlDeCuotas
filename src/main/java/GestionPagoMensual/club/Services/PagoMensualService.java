@@ -76,7 +76,7 @@ public class PagoMensualService {
         Runnable verificarEstadoCliente = () -> {
             ZonedDateTime horaActual = ZonedDateTime.now(ZoneId.systemDefault());
             long diasTranscurridos = Duration.between(fechaCreacionPago.toLocalDate().atStartOfDay(), horaActual.toLocalDate().atStartOfDay()).toDays();
-            if (diasTranscurridos >= 1) { // Cambiar estado después de 1 día
+            if (diasTranscurridos >= 31) { // Cambiar estado después de 31 días
                 cambiarEstadoCliente(clienteId);
             }
         };
@@ -97,39 +97,5 @@ public class PagoMensualService {
     }
 }
 
-//    @Async
-//    public void programarRevertirEstado(Cliente cliente) {
-//        try {
-//            // Espera 1 día antes de revertir el estado a "NO_PAGO"
-//            TimeUnit.DAYS.sleep(1);
-//            cliente.setEstado(Estado.NO_PAGO);
-//            cliente.setFechaCambioEstado(LocalDateTime.now());
-//            eventPublisher.publishEvent(new EntityStateChangeEvent(cliente));
-//        } catch (InterruptedException e) {
-//            // Manejar interrupciones
-//            Thread.currentThread().interrupt();
-//        }
-//    }
-
-//    @Scheduled(cron = "0 0 */2 * * ?") // Se ejecuta cada 2 días
-//    public void revertirCambiosPagos() {
-//        // Obtener la fecha actual
-//        LocalDateTime fechaActual = LocalDateTime.now();
-//
-//        // Sumar 2 días a la fecha actual para obtener la fecha límite
-//        LocalDateTime fechaLimite = LocalDateTime.now().plusDays(2);
-//
-//        // Si la fecha actual es posterior a la fecha límite, se revierten los cambios
-//        if (fechaActual.isAfter(fechaLimite)) {
-//            // Obtener los clientes que se modificaron después del tiempo determinado
-//            List<Cliente> clientesModificados = clienteRepository.findByFechaCambioEstadoAfter(fechaLimite);
-//
-//            for (Cliente cliente : clientesModificados) {
-//                cliente.setEstado(Estado.NO_PAGO);
-//                cliente.setPago(false);
-//                clienteRepository.save(cliente); // Se actualiza el cliente
-//            }
-//        }
-//    }
 
 
