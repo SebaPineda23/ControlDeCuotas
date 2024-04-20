@@ -26,6 +26,7 @@ public class Cliente {
     private String dni;
     private String fecha_nacimiento;
     private ZonedDateTime fechaCambioEstado;
+    private String email;
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<PagoMensual> cronogramaPagos;
     private Estado estado;

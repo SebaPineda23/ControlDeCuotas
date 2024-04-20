@@ -70,6 +70,9 @@ public class ClienteService {
             if (cliente.getFecha_nacimiento() != null) {
                 clienteExistente.setFecha_nacimiento(cliente.getFecha_nacimiento());
             }
+            if(cliente.getEmail() != null){
+                clienteExistente.setEmail(cliente.getEmail());
+            }
 
             // Guardar el cliente actualizado
             return clienteRepository.save(clienteExistente);

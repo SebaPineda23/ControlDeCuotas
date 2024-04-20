@@ -35,6 +35,8 @@ public class PagoMensualService {
     private ClienteRepository clienteRepository;
     @Autowired
     private ApplicationEventPublisher eventPublisher;
+    @Autowired
+    AuthMail authMail;
 
     public PagoMensualService(PagoMensualRepository pagoMensualRepository, ClienteRepository clienteRepository) {
         this.pagoMensualRepository = pagoMensualRepository;
@@ -72,11 +74,13 @@ public class PagoMensualService {
         // Guardar el pago mensual
         PagoMensual pagoMensualGuardado = pagoMensualRepository.save(nuevoPago);
 
+        sendPaymentEmail(cliente, fechaCreacionPago);
+
         // Programar una tarea para verificar si ha pasado un día desde la creación del pago mensual
         Runnable verificarEstadoCliente = () -> {
             ZonedDateTime horaActual = ZonedDateTime.now(ZoneId.systemDefault());
             long diasTranscurridos = Duration.between(fechaCreacionPago.toLocalDate().atStartOfDay(), horaActual.toLocalDate().atStartOfDay()).toDays();
-            if (diasTranscurridos >= 31) { // Cambiar estado después de 31 días
+            if (diasTranscurridos >= 1) { // Cambiar estado después de 1 días
                 cambiarEstadoCliente(clienteId);
             }
         };
@@ -86,6 +90,11 @@ public class PagoMensualService {
         executorService.scheduleAtFixedRate(verificarEstadoCliente, 0, 1, TimeUnit.DAYS);
 
         return pagoMensualGuardado;
+    }
+    private void sendPaymentEmail(Cliente cliente, ZonedDateTime fechaCreacionPago) {
+        String mensaje = "Hola " + cliente.getNombre() + ",\n\nGracias por realizar el pago de la cuota. El pago se efectuó el día " + fechaCreacionPago.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + "\n\nSaludos,\nEl equipo de gestión del club";
+
+        authMail.sendMessage(cliente.getEmail(), mensaje);
     }
 
     private void cambiarEstadoCliente(Long clienteId) {
