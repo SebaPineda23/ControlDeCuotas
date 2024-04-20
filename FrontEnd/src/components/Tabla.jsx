@@ -27,6 +27,10 @@ function Tabla({ data, onRowClick, handleHistorial }) {
       dataIndex: "apellido",
     },
     {
+      title: "Email",
+      dataIndex: "email",
+    },
+    {
       title: "Dni",
       dataIndex: "dni",
     },
@@ -38,6 +42,18 @@ function Tabla({ data, onRowClick, handleHistorial }) {
     {
       title: "Estado",
       dataIndex: "estado",
+      render: (estado) => (
+        <span
+          style={{
+            color: "white",
+            background: estado === "PAGO" ? "green" : "red",
+            padding: "5px",
+            borderRadius: "5px",
+          }}
+        >
+          {estado}
+        </span>
+      ),
     },
     {
       title: "Acciones",

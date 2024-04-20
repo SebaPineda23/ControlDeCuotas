@@ -30,6 +30,13 @@ export default function FormNewSocio() {
             <Input />
           </Form.Item>
           <Form.Item
+            name="email"
+            label="Email"
+            rules={[{ required: true, message: "Por favor ingrese su email" }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
             name="dni"
             label="Documento de identidad"
             rules={[
