@@ -60,27 +60,30 @@ public class PagoMensualService {
         Cliente cliente = clienteRepository.findById(clienteId)
                 .orElseThrow(() -> new Exception("Cliente no encontrado con ID: " + clienteId));
 
-        // Obtener la hora actual en la zona horaria del servidor de aplicaciones
-        ZonedDateTime horaActualLocal = ZonedDateTime.now(ZoneId.systemDefault());
+        // Obtener la hora actual en la zona horaria de Argentina (Buenos Aires)
+        ZoneId zonaHorariaArgentina = ZoneId.of("America/Argentina/Buenos_Aires");
+        ZonedDateTime horaActualArgentina = ZonedDateTime.now(zonaHorariaArgentina);
 
-        // Obtener la fecha de creación del pago mensual
-        ZonedDateTime fechaCreacionPago = horaActualLocal;
+        // Obtener la fecha de creación del pago mensual en la zona horaria de Argentina
+        ZonedDateTime fechaCreacionPago = horaActualArgentina;
+
+        // Establecer los atributos del cliente y el nuevo pago mensual
         cliente.setEstado(Estado.PAGO);
         cliente.setPago(true);
-        cliente.setFechaCambioEstado(horaActualLocal);
+        cliente.setFechaCambioEstado(fechaCreacionPago);
         nuevoPago.setCliente(cliente);
-
 
         // Guardar el pago mensual
         PagoMensual pagoMensualGuardado = pagoMensualRepository.save(nuevoPago);
 
+        // Enviar correo electrónico de confirmación
         sendPaymentEmail(cliente, fechaCreacionPago);
 
         // Programar una tarea para verificar si ha pasado un día desde la creación del pago mensual
         Runnable verificarEstadoCliente = () -> {
-            ZonedDateTime horaActual = ZonedDateTime.now(ZoneId.systemDefault());
+            ZonedDateTime horaActual = ZonedDateTime.now(zonaHorariaArgentina); // Usar la zona horaria de Argentina
             long diasTranscurridos = Duration.between(fechaCreacionPago.toLocalDate().atStartOfDay(), horaActual.toLocalDate().atStartOfDay()).toDays();
-            if (diasTranscurridos >= 1) { // Cambiar estado después de 1 días
+            if (diasTranscurridos >= 1) { // Cambiar estado después de 1 día
                 cambiarEstadoCliente(clienteId);
             }
         };
