@@ -20,12 +20,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 
@@ -37,6 +35,7 @@ public class PagoMensualService {
     private ApplicationEventPublisher eventPublisher;
     @Autowired
     AuthMail authMail;
+    private Map<Long, ScheduledFuture<?>> scheduledTasks = new HashMap<>();
 
     public PagoMensualService(PagoMensualRepository pagoMensualRepository, ClienteRepository clienteRepository) {
         this.pagoMensualRepository = pagoMensualRepository;
@@ -79,21 +78,31 @@ public class PagoMensualService {
         // Enviar correo electrónico de confirmación
         sendPaymentEmail(cliente, fechaCreacionPago);
 
-        // Programar una tarea para verificar si ha pasado un día desde la creación del pago mensual
+        // Cancelar cualquier tarea programada previamente para este cliente, si existe
+        ScheduledFuture<?> existingTask = scheduledTasks.get(clienteId);
+        if (existingTask != null) {
+            existingTask.cancel(true);
+        }
+
+        // Programar la tarea para verificar el estado del cliente
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         Runnable verificarEstadoCliente = () -> {
             ZonedDateTime horaActual = ZonedDateTime.now(zonaHorariaArgentina); // Usar la zona horaria de Argentina
             long diasTranscurridos = Duration.between(fechaCreacionPago.toLocalDate().atStartOfDay(), horaActual.toLocalDate().atStartOfDay()).toDays();
             if (diasTranscurridos >= 1) { // Cambiar estado después de 1 día
-                cambiarEstadoCliente(clienteId);
+                try {
+                    cambiarEstadoCliente(clienteId);
+                } catch (Exception e) {
+                    e.printStackTrace(); // Manejar la excepción según corresponda
+                }
             }
         };
-
-        // Programar la tarea para que se ejecute diariamente
-        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-        executorService.scheduleAtFixedRate(verificarEstadoCliente, 0, 1, TimeUnit.DAYS);
+        ScheduledFuture<?> task = executorService.scheduleAtFixedRate(verificarEstadoCliente, 0, 1, TimeUnit.DAYS);
+        scheduledTasks.put(clienteId, task);
 
         return pagoMensualGuardado;
     }
+
     private void sendPaymentEmail(Cliente cliente, ZonedDateTime fechaCreacionPago) {
         String mensaje = "Hola " + cliente.getNombre() + ",\n\nGracias por realizar el pago de la cuota. El pago se efectuó el día " + fechaCreacionPago.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + "\n\nSaludos,\nEl equipo de gestión del club";
 
