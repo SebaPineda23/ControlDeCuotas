@@ -65,11 +65,11 @@ public class PagoMensualService {
 
         // Obtener la fecha de creación del pago mensual
         ZonedDateTime fechaCreacionPago = horaActualLocal;
+        Estado estadoAnterior = cliente.getEstado(); // Guardar el estado anterior del cliente
         cliente.setEstado(Estado.PAGO);
         cliente.setPago(true);
         cliente.setFechaCambioEstado(horaActualLocal);
         nuevoPago.setCliente(cliente);
-
 
         // Guardar el pago mensual
         PagoMensual pagoMensualGuardado = pagoMensualRepository.save(nuevoPago);
@@ -79,8 +79,15 @@ public class PagoMensualService {
         // Programar una tarea para verificar si ha pasado un día desde la creación del pago mensual
         Runnable verificarEstadoCliente = () -> {
             ZonedDateTime horaActual = ZonedDateTime.now(ZoneId.systemDefault());
-            long diasTranscurridos = Duration.between(fechaCreacionPago.toLocalDate().atStartOfDay(), horaActual.toLocalDate().atStartOfDay()).toDays();
-            if (diasTranscurridos >= 1) { // Cambiar estado después de 1 días
+            long diasTranscurridos;
+            if (estadoAnterior == Estado.PAGO) {
+                // Si el estado anterior era PAGO, los días transcurridos se incrementan según el número de pagos realizados
+                int cantidadPagos = cliente.getCronogramaPagos().size();
+                diasTranscurridos = cantidadPagos * Duration.between(fechaCreacionPago.toLocalDate().atStartOfDay(), horaActual.toLocalDate().atStartOfDay()).toDays();
+            } else {
+                diasTranscurridos = Duration.between(fechaCreacionPago.toLocalDate().atStartOfDay(), horaActual.toLocalDate().atStartOfDay()).toDays();
+            }
+            if (diasTranscurridos >= 1) { // Cambiar estado después de 1 día
                 cambiarEstadoCliente(clienteId);
             }
         };
