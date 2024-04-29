@@ -80,14 +80,15 @@ public class PagoMensualService {
         Runnable verificarEstadoCliente = () -> {
             ZonedDateTime horaActual = ZonedDateTime.now(ZoneId.systemDefault());
             long diasTranscurridos;
-            if (estadoAnterior == Estado.PAGO) {
-                // Si el estado anterior era PAGO, los días transcurridos se incrementan según el número de pagos realizados
-                int cantidadPagos = cliente.getCronogramaPagos().size();
-                diasTranscurridos = cantidadPagos * Duration.between(fechaCreacionPago.toLocalDate().atStartOfDay(), horaActual.toLocalDate().atStartOfDay()).toDays();
-            } else {
-                diasTranscurridos = Duration.between(fechaCreacionPago.toLocalDate().atStartOfDay(), horaActual.toLocalDate().atStartOfDay()).toDays();
-            }
-            if (diasTranscurridos >= 1) { // Cambiar estado después de 1 día
+            // Obtener la cantidad de pagos realizados desde la fecha de creación del estado de pago
+            int cantidadPagos = cliente.getCronogramaPagos().size();
+            // Calcular los días transcurridos teniendo en cuenta la cantidad de pagos realizados
+            diasTranscurridos = cantidadPagos * Duration.between(fechaCreacionPago.toLocalDate().atStartOfDay(), horaActual.toLocalDate().atStartOfDay()).toDays();
+
+            // Calcular el límite de días basado en la cantidad de pagos realizados
+            int limiteDias = estadoAnterior == Estado.PAGO ? (cantidadPagos + 1) : 1;
+
+            if (diasTranscurridos >= limiteDias) { // Cambiar estado después del límite de días
                 cambiarEstadoCliente(clienteId);
             }
         };
