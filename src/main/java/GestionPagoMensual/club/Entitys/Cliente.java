@@ -31,5 +31,4 @@ public class Cliente {
     private List<PagoMensual> cronogramaPagos;
     private Estado estado;
     private boolean pago;
-
     }
