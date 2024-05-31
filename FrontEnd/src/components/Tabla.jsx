@@ -72,7 +72,7 @@ function Tabla({ data, onRowClick, handleHistorial }) {
           <Tooltip title="Historial de pago">
             <button
               type="button"
-              className="bg-blue-500 flex justify-center mx-2 items-center p-3 rounded-xl"
+              className="bg-blue-500 flex justify-center mx-2 items-center p-3 rounded-xl text-white"
               onClick={() => handleHistorial(record)}
             >
               <FileOutlined />
