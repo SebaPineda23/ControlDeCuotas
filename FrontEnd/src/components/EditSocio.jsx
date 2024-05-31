@@ -1,5 +1,5 @@
-import { Button, Checkbox, Form, Input } from "antd";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { Button, Form, Input } from "antd";
 import { useSelector } from "react-redux";
 import { getFilterSocios } from "../redux/setSocios";
 import useFilters from "../hooks/useFilters";
@@ -7,19 +7,32 @@ import useFilters from "../hooks/useFilters";
 export default function EditSocio() {
   const socio = useSelector(getFilterSocios);
   const { edit } = useFilters();
+  const [initialValues, setInitialValues] = useState({
+    id: "",
+    nombre: "",
+    apellido: "",
+    email: "",
+    dni: "",
+    fecha_nacimiento: "",
+  });
+  useEffect(() => {
+    setInitialValues({
+      id: socio.id,
+      nombre: socio.nombre,
+      apellido: socio.apellido,
+      email: socio.email,
+      dni: socio.dni,
+      fecha_nacimiento: socio.fecha_nacimiento,
+    });
+  }, [socio]);
+
   return (
     <div className="flex justify-center items-center w-11/12">
       <Form
         className="bg-white rounded-lg p-5"
         style={{ minWidth: "300px" }}
         onFinish={edit}
-        initialValues={{
-          id: socio.id,
-          nombre: socio.nombre,
-          apellido: socio.apellido,
-          dni: socio.dni,
-          fecha_nacimiento: socio.fecha_nacimiento,
-        }}
+        initialValues={initialValues}
       >
         <Form.Item label="id" name="id">
           {socio.id}
@@ -35,6 +48,13 @@ export default function EditSocio() {
           name="apellido"
           label="Apellido"
           rules={[{ required: true, message: "Por favor ingrese su apellido" }]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          name="email"
+          label="Email"
+          rules={[{ required: true, message: "Por favor ingrese su email" }]}
         >
           <Input />
         </Form.Item>
