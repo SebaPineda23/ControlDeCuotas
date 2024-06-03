@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllSocios, getHistorial, setEditSocio } from "../redux/setSocios";
+import { getAllSocios, setEditSocio } from "../redux/setSocios";
 import useFilters from "../hooks/useFilters";
 import Tabla from "../components/Tabla";
 import { Toaster } from "react-hot-toast";

@@ -1,10 +1,30 @@
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getSociosFiltered } from "../redux/setSocios";
-import { Table } from "antd";
+import { Modal, Table } from "antd";
 import BackButton from "../components/BackButton";
+import TableButtons from "../components/TableButons";
+import { useState } from "react";
+import { setEditSocio } from "../redux/setSocios";
+import useFilters from "../hooks/useFilters";
+import EditSocio from "../components/EditSocio";
+import Historial from "../components/Historial";
 
 export default function FilteredSociosByName() {
+  const dispatch = useDispatch();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isHistorialModalOpen, setIsHistorialModalOpen] = useState(false);
   const socios = useSelector(getSociosFiltered);
+  const { deleteSocios } = useFilters();
+
+  const onRowClick = (socio) => {
+    dispatch(setEditSocio(socio));
+    setIsEditModalOpen(true);
+  };
+
+  const handleHistorial = (historial) => {
+    setIsHistorialModalOpen(true);
+    historialDePago(historial);
+  };
   const columns = [
     {
       title: "N° de socio",
@@ -43,6 +63,18 @@ export default function FilteredSociosByName() {
         </span>
       ),
     },
+    {
+      title: "Acciones",
+      dataIndex: "acciones",
+      render: (_, record) => (
+        <TableButtons
+          record={record}
+          onRowClick={onRowClick}
+          handleHistorial={handleHistorial}
+          deleteSocios={deleteSocios}
+        />
+      ),
+    },
   ];
   const data = socios.map((socio) => ({
     key: socio.id,
@@ -69,6 +101,22 @@ export default function FilteredSociosByName() {
         scroll={{ x: 240 }}
         className="w-full"
       />
+      <Modal
+        title="Editar datos del socio"
+        open={isEditModalOpen}
+        onCancel={() => setIsEditModalOpen(false)}
+        footer={null}
+      >
+        <EditSocio />
+      </Modal>
+      <Modal
+        title="Historial de pago"
+        open={isHistorialModalOpen}
+        onCancel={() => setIsHistorialModalOpen(false)}
+        footer={null}
+      >
+        <Historial />
+      </Modal>
     </div>
   );
 }
