@@ -10,7 +10,7 @@ import { getAccess } from "./redux/setUsuario";
 function App() {
   const access = useSelector(getAccess);
   return (
-    <div className="bg-hero-pattern-2 object-cover w-full h-full min-h-screen flex items-center justify-center">
+    <div className="bg-hero-pattern-2 bg-cover bg-center w-full h-full min-h-screen flex items-center justify-center">
       <Routes>
         <Route
           path="/"
