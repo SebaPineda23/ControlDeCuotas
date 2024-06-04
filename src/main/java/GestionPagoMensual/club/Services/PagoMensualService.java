@@ -79,7 +79,7 @@ public class PagoMensualService {
         Runnable verificarEstadoCliente = () -> {
             ZonedDateTime horaActual = ZonedDateTime.now(ZoneId.systemDefault());
             long diasTranscurridos = Duration.between(fechaCreacionPago.toLocalDate().atStartOfDay(), horaActual.toLocalDate().atStartOfDay()).toDays();
-            if (diasTranscurridos >= 31) { // Cambiar estado después de 31 días
+            if (diasTranscurridos >= 10) { // Cambiar estado después de 10 días
                 cambiarEstadoCliente(clienteId);
             }
         };

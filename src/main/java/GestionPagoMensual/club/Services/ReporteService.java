@@ -18,12 +18,12 @@ public class ReporteService {
         this.clienteService = clienteService;
     }
 
-    public byte[] generarPdfDeClientesYMontosTotales(String categoria, String mesAno) throws IOException {
+    public byte[] generarPdfDeClientesYMontosTotales(String categoria, String monthOfPayment) throws IOException {
         // Obtener datos
-        ClientesYTotal datos = clienteService.getClientesByPagoMesAndCategoria(mesAno, categoria);
+        ClientesYTotal datos = clienteService.getClientesByPagoMesAndCategoria(monthOfPayment, categoria);
 
         // Generar HTML
-        String html = generarHtml(datos);
+        String html = generarHtml(datos, categoria, monthOfPayment);
 
         // Convertir HTML a PDF
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -32,7 +32,7 @@ public class ReporteService {
         return byteArrayOutputStream.toByteArray();
     }
 
-    private String generarHtml(ClientesYTotal datos) {
+    private String generarHtml(ClientesYTotal datos, String categoria, String monthOfPayment) {
         StringBuilder html = new StringBuilder();
         html.append("<html>")
                 .append("<head><style>")
@@ -42,6 +42,8 @@ public class ReporteService {
                 .append("</style></head>")
                 .append("<body>")
                 .append("<h1>Reporte de Clientes y Montos Totales</h1>")
+                .append("<h2>Categoría: ").append(categoria).append("</h2>")
+                .append("<h2>Mes y Año: ").append(monthOfPayment).append("</h2>")
                 .append("<table>")
                 .append("<tr><th>Cliente</th><th>Monto Total</th></tr>");
 
@@ -52,15 +54,21 @@ public class ReporteService {
             double montoTotalCliente = cliente.getCronogramaPagos().stream()
                     .mapToDouble(pago -> pago.getMonto())
                     .sum();
+            // Agregar el símbolo de peso ($) al monto total
+            String montoConPeso = "$ " + montoTotalCliente;
             html.append("<tr>")
                     .append("<td>").append(cliente.getNombre()).append(" ").append(cliente.getApellido()).append("</td>")
-                    .append("<td>").append(montoTotalCliente).append("</td>")
+                    .append("<td>").append(montoConPeso).append("</td>")
                     .append("</tr>");
         }
 
+        // Sumar los montos totales de todos los clientes
+        double montoTotal = datos.getMontoTotal();
+        // Agregar el símbolo de peso ($) al monto total final
+        String montoTotalConPeso = "$ " + montoTotal;
         html.append("<tr>")
                 .append("<td><b>Total</b></td>")
-                .append("<td><b>").append(datos.getMontoTotal()).append("</b></td>")
+                .append("<td><b>").append(montoTotalConPeso).append("</b></td>")
                 .append("</tr>")
                 .append("</table>")
                 .append("</body>")
