@@ -1,6 +1,5 @@
 package GestionPagoMensual.club.Controllers;
 
-import GestionPagoMensual.club.Entitys.Cliente;
 import GestionPagoMensual.club.Entitys.PagoMensual;
 import GestionPagoMensual.club.Services.ClienteService;
 import GestionPagoMensual.club.Services.PagoMensualService;
@@ -10,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("adm_clubes/pago_mensuales")
@@ -44,7 +42,6 @@ public class PagoMensualController {
         List<PagoMensual> pagoMensuales = pagoMensualService.obtenerTodasLasFacturasMensuales();
         return new ResponseEntity<>(pagoMensuales, HttpStatus.OK);
     }
-
     @GetMapping("/cliente/{idCliente}/pagos")
     public ResponseEntity<?> obtenerPagosMensualesPorIdCliente(@PathVariable Long idCliente) {
         List<PagoMensual> pagosMensuales = pagoMensualService.obtenerPagosMensualesPorIdCliente(idCliente);

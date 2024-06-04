@@ -5,25 +5,17 @@ package GestionPagoMensual.club.Services;
 import GestionPagoMensual.club.Entitys.Cliente;
 import GestionPagoMensual.club.Entitys.Estado;
 import GestionPagoMensual.club.Entitys.PagoMensual;
-import GestionPagoMensual.club.ManejoErrores.EntityStateChangeEvent;
 import GestionPagoMensual.club.Repositories.ClienteRepository;
 import GestionPagoMensual.club.Repositories.PagoMensualRepository;
-import jakarta.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;

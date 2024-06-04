@@ -3,6 +3,7 @@ package GestionPagoMensual.club.Controllers;
 import GestionPagoMensual.club.Entitys.Cliente;
 import GestionPagoMensual.club.ManejoErrores.DniExistenteException;
 import GestionPagoMensual.club.Services.ClienteService;
+import GestionPagoMensual.club.dto.ClienteMontoTotalDTO;
 import lombok.NonNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,16 +37,20 @@ public class ClienteController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocurrió un error al procesar la solicitud");
         }
     }
+    @GetMapping("/montoTotal/categoria/{categoria}/mes/{mes}")
+    public ResponseEntity<?> obtenerClientesYMontosTotalesPorCategoriaYMes(
+            @PathVariable("categoria") String categoria,
+            @PathVariable("mes") String monthOfPayment) {
 
-    @GetMapping("/{clienteId}")
-    public ResponseEntity<?> obtenerClientePorId(@PathVariable Long clienteId) {
-        try{
-        Cliente cliente = clienteService.obtenerClientePorId(clienteId);
-        return new ResponseEntity<>(cliente, HttpStatus.OK);
-        }catch(Exception e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontro un Cliente con el id igual a "+clienteId);
+        ClienteMontoTotalDTO clientesConMontosTotales = clienteService.obtenerClientesYMontosTotalesPorCategoriaYMes(categoria, monthOfPayment);
+
+        if (clientesConMontosTotales == null || clientesConMontosTotales.getClientes().isEmpty()) {
+            return new ResponseEntity<>("No se encontraron pagos para la categoría " + categoria + " en el mes " + monthOfPayment, HttpStatus.NOT_FOUND);
+        } else {
+            return new ResponseEntity<>(clientesConMontosTotales, HttpStatus.OK);
         }
     }
+
     @GetMapping("/buscarCliente")
     public List<Cliente> buscarClientesPorLetras(
             @RequestParam("letras") String letras) {
@@ -61,6 +66,19 @@ public class ClienteController {
             Map<String, String> responseBody = new HashMap<>();
             responseBody.put("error", "Ya existe un Cliente registrado con el DNI ingresado, por favor vuelva a intentar");
             return ResponseEntity.status(HttpStatus.CONFLICT).body(responseBody);
+        }
+    }
+    @GetMapping("/categoria/{categoria}/mes/{mes}")
+    public ResponseEntity<List<Cliente>> obtenerClientesPorCategoriaYMes(
+            @PathVariable("categoria") String categoria,
+            @PathVariable("mes") String mes) {
+
+        List<Cliente> clientes = clienteService.obtenerClientesPorCategoriaYMes(categoria, mes);
+
+        if (clientes.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            return new ResponseEntity<>(clientes, HttpStatus.OK);
         }
     }
 
