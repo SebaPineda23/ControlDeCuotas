@@ -5,6 +5,7 @@ import SearchByName from "./SearchByName";
 import { useNavigate } from "react-router-dom";
 import { Button } from "antd";
 import useFilters from "../hooks/useFilters";
+import Categorias from "./Categorias";
 
 export default function NavBar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -48,6 +49,7 @@ export default function NavBar() {
             </div>
           ))}
         </div>
+        <Categorias />
         <div className="hidden sm:flex space-x-4">
           <Button
             className="bg-blue-500 hover:bg-gray-900 w-auto mb-2 mx-2"

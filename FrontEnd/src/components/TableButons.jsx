@@ -2,7 +2,12 @@ import React from "react";
 import { DeleteOutlined, EditOutlined, FileOutlined } from "@ant-design/icons";
 import { Tooltip } from "antd";
 
-export default function TableButtons({ record, onRowClick, handleHistorial }) {
+export default function TableButtons({
+  record,
+  onRowClick,
+  handleHistorial,
+  deleteSocios,
+}) {
   return (
     <div className="w-20 2xl:w-full flex items-center justify-around">
       <Tooltip title="Editar">
