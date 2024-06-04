@@ -1,14 +1,11 @@
 package GestionPagoMensual.club.Controllers;
 
 import GestionPagoMensual.club.Entitys.Cliente;
-import GestionPagoMensual.club.ManejoErrores.DniExistenteException;
 import GestionPagoMensual.club.Services.ClienteService;
-import GestionPagoMensual.club.dto.ClienteMontoTotalDTO;
-import lombok.NonNull;
+import GestionPagoMensual.club.dto.ClientesYTotal;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -37,18 +34,9 @@ public class ClienteController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocurrió un error al procesar la solicitud");
         }
     }
-    @GetMapping("/montoTotal/categoria/{categoria}/mes/{mes}")
-    public ResponseEntity<?> obtenerClientesYMontosTotalesPorCategoriaYMes(
-            @PathVariable("categoria") String categoria,
-            @PathVariable("mes") String monthOfPayment) {
-
-        ClienteMontoTotalDTO clientesConMontosTotales = clienteService.obtenerClientesYMontosTotalesPorCategoriaYMes(categoria, monthOfPayment);
-
-        if (clientesConMontosTotales == null || clientesConMontosTotales.getClientes().isEmpty()) {
-            return new ResponseEntity<>("No se encontraron pagos para la categoría " + categoria + " en el mes " + monthOfPayment, HttpStatus.NOT_FOUND);
-        } else {
-            return new ResponseEntity<>(clientesConMontosTotales, HttpStatus.OK);
-        }
+    @GetMapping("/clientesPorPagoMesYCategoria")
+    public ClientesYTotal getClientesByPagoMesAndCategoria(@RequestParam String mesAno, @RequestParam String categoria) {
+        return clienteService.getClientesByPagoMesAndCategoria(mesAno, categoria);
     }
 
     @GetMapping("/buscarCliente")

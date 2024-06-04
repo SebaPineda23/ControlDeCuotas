@@ -35,6 +35,10 @@ public class PagoMensualController {
                     .body("Error al procesar la solicitud, " + e.getMessage());
         }
     }
+    @GetMapping("/pagos")
+    public List<PagoMensual> getPagosByMes(@RequestParam String mesAno) {
+        return pagoMensualService.getPagosByMes(mesAno);
+    }
 
 
     @GetMapping

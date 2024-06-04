@@ -43,6 +43,13 @@ public class PagoMensualService {
     public List<PagoMensual> obtenerPagosMensualesPorIdCliente(Long idCliente) {
         return pagoMensualRepository.findByClienteId(idCliente);
     }
+    public List<PagoMensual> getPagosByMes(String mesAno) {
+        return pagoMensualRepository.findPagosByMes(mesAno);
+    }
+
+    public double calcularMontoTotalPorCategoriaYMes(String mesAno, String categoria) {
+        return pagoMensualRepository.calcularMontoTotalPorCategoriaYMes(mesAno, categoria);
+    }
 
     public void eliminarFacturaMensualPorId(Long id) {
         pagoMensualRepository.deleteById(id);
