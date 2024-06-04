@@ -98,8 +98,8 @@ public class ClienteService {
             throw new Exception("Cliente no encontrado con ID: " + clienteId);
         }
     }
-    public List<Cliente> obtenerClientesPorCategoriaYMes(String categoria, String mes) {
-        return clienteRepository.findByCategoriaAndCronogramaPagos_FechaContaining(categoria, mes);
+    public List<Cliente> obtenerClientePorCategoria(String categoria) {
+        return clienteRepository.findClienteByCategoria(categoria);
     }
     public Cliente actualizarEstado(Long clienteId) throws Exception {
         Optional<Cliente> clienteOptional = clienteRepository.findById(clienteId);

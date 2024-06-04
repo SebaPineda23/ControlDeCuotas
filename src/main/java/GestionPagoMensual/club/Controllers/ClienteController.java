@@ -68,12 +68,11 @@ public class ClienteController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(responseBody);
         }
     }
-    @GetMapping("/categoria/{categoria}/mes/{mes}")
-    public ResponseEntity<List<Cliente>> obtenerClientesPorCategoriaYMes(
-            @PathVariable("categoria") String categoria,
-            @PathVariable("mes") String mes) {
+    @GetMapping("/categoria/{categoria}")
+    public ResponseEntity<List<Cliente>> obtenerClientesPorCategoria(
+            @PathVariable("categoria") String categoria) {
 
-        List<Cliente> clientes = clienteService.obtenerClientesPorCategoriaYMes(categoria, mes);
+        List<Cliente> clientes = clienteService.obtenerClientePorCategoria(categoria);
 
         if (clientes.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);

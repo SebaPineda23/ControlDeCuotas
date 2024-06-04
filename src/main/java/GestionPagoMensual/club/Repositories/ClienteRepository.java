@@ -19,7 +19,7 @@ public interface ClienteRepository extends JpaRepository<Cliente, Long> {
     //List<Cliente> findByNombreAndApellido(String nombre, String apellido);
     List<Cliente> findByNombreContainingOrApellidoContaining(String letras1, String letras2);
     List<Cliente> findByFechaCambioEstadoAfter(LocalDateTime fechaLimite);
-    List<Cliente> findByCategoriaAndCronogramaPagos_FechaContaining(String categoria, String mes);
+    List<Cliente> findClienteByCategoria(String categoria);
     @Query("SELECT c, SUM(p.monto) " +
             "FROM Cliente c JOIN c.cronogramaPagos p " +
             "WHERE c.categoria = :categoria AND SUBSTRING(p.fecha, 4, 2) = :monthOfPayment " +
