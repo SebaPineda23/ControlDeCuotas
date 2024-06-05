@@ -10,10 +10,11 @@ export default function Categorias() {
     { label: "Inferiores", key: "Inferiores" },
     { label: "5ta", key: "5ta" },
     { label: "6ta", key: "6ta" },
-    { label: "7ta", key: "7ta" },
-    { label: "8ta", key: "8ta" },
-    { label: "9ta", key: "9ta" },
-    { label: "10ta", key: "10ta" },
+    { label: "7ma", key: "7ma" },
+    { label: "8va", key: "8va" },
+    { label: "9na", key: "9na" },
+    { label: "10ma", key: "10ma" },
+    { label: "Infantiles", key: "Infantiles" },
   ];
 
   const menu = (

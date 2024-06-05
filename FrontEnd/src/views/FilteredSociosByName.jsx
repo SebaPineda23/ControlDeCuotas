@@ -14,7 +14,7 @@ export default function FilteredSociosByName() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isHistorialModalOpen, setIsHistorialModalOpen] = useState(false);
   const socios = useSelector(getSociosFiltered);
-  const { deleteSocios } = useFilters();
+  const { deleteSocios, historialDePago } = useFilters();
 
   const onRowClick = (socio) => {
     dispatch(setEditSocio(socio));
