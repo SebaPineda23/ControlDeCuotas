@@ -7,6 +7,8 @@ import FilteredSociosByName from "./views/FilteredSociosByName";
 import Login from "./views/Login";
 import { useSelector } from "react-redux";
 import { getAccess } from "./redux/setUsuario";
+import PagosMensual from "./views/PagosMensual";
+import TablaDeSociosPagos from "./components/TablaDeSociosPagos";
 function App() {
   const access = useSelector(getAccess);
   return (
@@ -35,9 +37,19 @@ function App() {
           }
         />
         <Route
-          path="/socios/name/:value"
+          path="/socios/filtered"
           element={
             access === true ? <FilteredSociosByName /> : <Navigate to="/" />
+          }
+        />
+        <Route
+          path="/pagoPorCategoria"
+          element={access === true ? <PagosMensual /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/pagoDeSocios"
+          element={
+            access === true ? <TablaDeSociosPagos /> : <Navigate to="/" />
           }
         />
       </Routes>

@@ -2,10 +2,17 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getAllSocios,
+  getAño,
+  getCategoria,
+  getMes,
   setAllPagos,
   setAllSocios,
+  setAño,
+  setCategoria,
   setFilterSocios,
   setHistorial,
+  setMes,
+  setMontoTotal,
 } from "../redux/setSocios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -24,14 +31,16 @@ const useFilters = () => {
   const notifyError = (mensaje) => toast.error(mensaje);
   const socios = useSelector(getAllSocios);
   const navigate = useNavigate();
-
+  const mes = useSelector(getMes);
+  const año = useSelector(getAño);
+  const categoria = useSelector(getCategoria);
   const handleAllSocios = async () => {
     try {
       const { data } = await axios.get(
         "https://controldecuotas.onrender.com/adm_clubes/clientes"
       );
       dispatch(setAllSocios(data));
-      notificarExito("Socios cargados exitosamente");
+      // notificarExito("Socios cargados exitosamente");
     } catch (error) {
       notificarError(error);
     }
@@ -63,9 +72,9 @@ const useFilters = () => {
           "https://controldecuotas.onrender.com/adm_clubes/clientes/buscarCliente?letras=" +
             value
         );
-        if (response) {
+        if (response.data.length > 0) {
           dispatch(setFilterSocios(response.data));
-          navigate(`/socios/name/${value}`);
+          navigate(`/socios/filtered`);
         }
       } catch (error) {
         notifyError("Ocurrió un error al realizar la búsqueda");
@@ -110,10 +119,14 @@ const useFilters = () => {
     navigate("/");
   };
   const pago = async (values) => {
+    const { cliente_id, fecha, monto } = values;
+    const partes = fecha.split("-");
+    const nuevaFecha = partes[2] + "-" + partes[1] + "-" + partes[0];
+    console.log(nuevaFecha);
     try {
       const response = await axios.post(
-        `https://controldecuotas.onrender.com/adm_clubes/pago_mensuales/${values.cliente_id}/pagos`,
-        values
+        `https://controldecuotas.onrender.com/adm_clubes/pago_mensuales/${cliente_id}/pagos`,
+        { fecha: nuevaFecha, monto }
       );
       if (response.data) {
         notificarExito("Pago realizado con exito");
@@ -182,8 +195,65 @@ const useFilters = () => {
       notificarError(error);
     }
   };
+  const handleMenuClick = async (itemKey) => {
+    try {
+      const response = await axios.get(
+        "https://controldecuotas.onrender.com/adm_clubes/clientes/categoria/" +
+          itemKey
+      );
+      if (response.data.length > 0) {
+        dispatch(setFilterSocios(response.data));
+        navigate("/socios/filtered");
+      } else notifyError("No hay socios en esta categoria");
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+  const handlePagos = async (values) => {
+    const { mes, año, categoria } = values;
+    try {
+      const response = await axios.get(
+        `https://controldecuotas.onrender.com/adm_clubes/clientes/clientesPorPagoMesYCategoria?mesAno=${mes}-${año}&categoria=${categoria}`
+      );
+      if (response.data.clientes.length > 0) {
+        console.log(response);
+        dispatch(setFilterSocios(response.data.clientes));
+        dispatch(setMontoTotal(response.data.montoTotal));
+        dispatch(setMes(mes));
+        dispatch(setAño(año));
+        dispatch(setCategoria(categoria));
+        navigate("/pagoDeSocios");
+      } else notifyError("No se encontraron pagos en ese mes/año");
+    } catch (error) {
+      notifyError(error);
+    }
+  };
+  const downloadData = async () => {
+    try {
+      const response = await axios.get(
+        `https://controldecuotas.onrender.com/adm_clubes/generacionPDF/reporte/pdf?categoria=${categoria}&mesAno=${mes}-${año}`,
+        { responseType: "blob" } // Asegúrate de recibir la respuesta como un blob
+      );
+
+      if (response) {
+        const url = window.URL.createObjectURL(
+          new Blob([response.data], { type: "application/pdf" })
+        );
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `Reporte_${categoria}_${mes}_${año}.pdf`); // El nombre del archivo que se descargará
+        document.body.appendChild(link);
+        link.click();
+        link.parentNode.removeChild(link); // Elimina el enlace después de hacer clic
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return {
     handleAllSocios,
+    handleMenuClick,
     searchById,
     searchByName,
     notificarExito,
@@ -196,6 +266,8 @@ const useFilters = () => {
     allPagos,
     handleLogin,
     handleLogout,
+    handlePagos,
+    downloadData,
   };
 };
 export default useFilters;

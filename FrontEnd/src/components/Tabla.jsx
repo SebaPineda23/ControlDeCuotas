@@ -35,6 +35,10 @@ function Tabla({ data, onRowClick, handleHistorial }) {
       dataIndex: "dni",
     },
     {
+      title: "Categoria",
+      dataIndex: "categoria",
+    },
+    {
       title: "Fecha de nacimiento",
       dataIndex: "fecha_nacimiento",
       render: (fecha) => formatFecha(fecha),
