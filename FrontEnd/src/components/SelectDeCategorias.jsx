@@ -12,6 +12,7 @@ export default function SelectDeCategorias({ value, onChange }) {
     { label: "8va", value: "8va" },
     { label: "9na", value: "9na" },
     { label: "10ma", value: "10ma" },
+    { label: "Infantiles", key: "Infantiles" },
   ];
   return (
     <Select
@@ -19,8 +20,8 @@ export default function SelectDeCategorias({ value, onChange }) {
       onChange={onChange}
       placeholder="Seleccione una categoría"
     >
-      {items.map((item) => (
-        <Option key={item.value} value={item.value}>
+      {items.map((item, index) => (
+        <Option key={index} value={item.value}>
           {item.label}
         </Option>
       ))}
