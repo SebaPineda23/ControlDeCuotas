@@ -39,8 +39,16 @@ export default function FilteredSociosByName() {
       dataIndex: "apellido",
     },
     {
+      title: "Email",
+      dataIndex: "email",
+    },
+    {
       title: "Dni",
       dataIndex: "dni",
+    },
+    {
+      title: "Categoria",
+      dataIndex: "categoria",
     },
     {
       title: "Fecha de nacimiento",
@@ -84,6 +92,8 @@ export default function FilteredSociosByName() {
     dni: socio.dni,
     fechaDeNacimiento: socio.fecha_nacimiento,
     estado: socio.estado,
+    email: socio.email,
+    categoria: socio.categoria,
   }));
   const formatFecha = (fecha) => {
     const partes = fecha.split("-");

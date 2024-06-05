@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { Button, Form, Input } from "antd";
+import React, { useEffect, useState } from "react";
+import { Button, Form, Input, Select } from "antd";
 import { useSelector } from "react-redux";
 import { getFilterSocios } from "../redux/setSocios";
 import useFilters from "../hooks/useFilters";
@@ -9,7 +9,23 @@ export default function EditSocio() {
   const [form] = Form.useForm();
   const socio = useSelector(getFilterSocios);
   const { edit } = useFilters();
+  const [categoria, setCategoria] = useState(null);
 
+  const handleCategoriaChange = (value) => {
+    setCategoria(value);
+  };
+
+  const items = [
+    { label: "Primera", value: "Primera" },
+    { label: "Inferiores", value: "Inferiores" },
+    { label: "5ta", value: "5ta" },
+    { label: "6ta", value: "6ta" },
+    { label: "7ta", value: "7ta" },
+    { label: "8ta", value: "8ta" },
+    { label: "9ta", value: "9ta" },
+    { label: "10ta", value: "10ta" },
+    { label: "Inferiores", value: "Inferiores" },
+  ];
   useEffect(() => {
     form.setFieldsValue({
       id: socio.id,
@@ -80,7 +96,17 @@ export default function EditSocio() {
             { required: true, message: "Por favor ingrese su categoria" },
           ]}
         >
-          <Categorias />
+          <Select
+            value={categoria}
+            onChange={handleCategoriaChange}
+            placeholder="Seleccione una categoría"
+          >
+            {items.map((item) => (
+              <Option key={item.value} value={item.value}>
+                {item.label}
+              </Option>
+            ))}
+          </Select>
         </Form.Item>
         <div className="flex justify-center">
           <Form.Item>

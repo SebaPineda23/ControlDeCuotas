@@ -12,6 +12,7 @@ export default function NavBar() {
   const navigate = useNavigate();
   const goForm = () => navigate("/nuevoSocio");
   const goPago = () => navigate("/pago");
+  const goPagosMensual = () => navigate("/pagoPorCategoria");
   const menuItems = [
     {
       key: "searchById",
@@ -49,7 +50,18 @@ export default function NavBar() {
             </div>
           ))}
         </div>
-        <Categorias />
+        <div className="hidden sm:flex space-x-4">
+          <Categorias />
+        </div>
+        <div className="hidden sm:flex space-x-4">
+          <Button
+            onClick={goPagosMensual}
+            type="primary"
+            className="bg-blue-500 w-auto mb-2 mx-2"
+          >
+            Liquidacion mensual
+          </Button>
+        </div>
         <div className="hidden sm:flex space-x-4">
           <Button
             className="bg-blue-500 hover:bg-gray-900 w-auto mb-2 mx-2"
@@ -96,6 +108,7 @@ export default function NavBar() {
                 Registrar Pago
               </Button>
             </div>
+            <Categorias />
             <Button
               className="bg-blue-500 hover:bg-gray-900 w-auto mb-2 mx-2"
               type="primary"
