@@ -68,9 +68,9 @@ public class PagoMensualService {
         ZonedDateTime fechaActual = ZonedDateTime.now();
         ZonedDateTime fechaVencimientoNuevoPago;
         if (ultimoPago != null && ultimoPago.getFechaVencimiento().isAfter(fechaActual)) {
-            fechaVencimientoNuevoPago = ultimoPago.getFechaVencimiento().plusMinutes(30); // Cambio aquí a 10 minutos
+            fechaVencimientoNuevoPago = ultimoPago.getFechaVencimiento().plusDays(1); // Cambio aquí a 1 día
         } else {
-            fechaVencimientoNuevoPago = fechaActual.plusMinutes(30); // Cambio aquí a 10 minutos
+            fechaVencimientoNuevoPago = fechaActual.plusDays(1); // Cambio aquí a 1 día
         }
 
         // Paso 4: Actualizar el estado del cliente
@@ -110,12 +110,12 @@ public class PagoMensualService {
             cambiarEstadoCliente(cliente);
         };
 
-        // Calcular el tiempo de espera para la tarea de verificación del estado del cliente (10 minutos)
-        long delay = Duration.between(fechaActual, fechaVencimientoNuevoPago).toMinutes();
+        // Calcular el tiempo de espera para la tarea de verificación del estado del cliente (1 día)
+        long delay = Duration.between(fechaActual, fechaVencimientoNuevoPago).toDays();
 
-        // Programar la tarea para que se ejecute cada 10 minutos
+        // Programar la tarea para que se ejecute cada 1 día
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-        executorService.scheduleAtFixedRate(verificarEstadoCliente, delay, 30, TimeUnit.MINUTES);
+        executorService.scheduleAtFixedRate(verificarEstadoCliente, delay, 1, TimeUnit.DAYS);
     }
 
     private void cambiarEstadoCliente(Cliente cliente) {
