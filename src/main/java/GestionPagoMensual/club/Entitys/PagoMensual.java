@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Builder
 @Data
@@ -19,6 +20,9 @@ public class PagoMensual {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String fecha;
+    private ZonedDateTime fechaPago;
+    //atributo nuevo fechaVencimiento
+    private ZonedDateTime fechaVencimiento;
     private double monto;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "cliente_id")
