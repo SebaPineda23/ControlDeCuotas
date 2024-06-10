@@ -41,7 +41,8 @@ dependencies {
 	implementation 'com.itextpdf:itext7-core:7.1.14'
 	implementation 'com.itextpdf:html2pdf:4.0.5'
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
-
+	implementation 'org.apache.poi:poi-ooxml:5.2.1'
+	implementation 'io.github.cdimascio:dotenv-java:2.2.0'
 }
 
 tasks.named('test') {
