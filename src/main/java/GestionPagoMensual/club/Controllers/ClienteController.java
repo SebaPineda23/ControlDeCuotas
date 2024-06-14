@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/adm_clubes/clientes")
@@ -32,6 +33,15 @@ public class ClienteController {
             return ResponseEntity.ok(clientes);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocurrió un error al procesar la solicitud");
+        }
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<?> obtenerClientePorId(@PathVariable("id") Long id) {
+        try {
+            Cliente cliente = clienteService.obtenerClientePorId(id);
+            return ResponseEntity.ok(cliente);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
     @GetMapping("/clientesPorPagoMesYCategoria")
