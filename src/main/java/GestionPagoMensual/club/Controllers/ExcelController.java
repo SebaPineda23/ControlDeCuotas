@@ -1,12 +1,17 @@
 package GestionPagoMensual.club.Controllers;
 
 
+import GestionPagoMensual.club.Services.ReporteService;
 import lombok.AllArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,8 +25,10 @@ import java.sql.*;
 class ExcelController {
     @Autowired
     private Environment env;
+    @Autowired
+    private ReporteService reporteService;
 
-    @GetMapping("/export")
+    @GetMapping("/exportar_Todas_las_tablas")
     public ByteArrayResource exportToExcel() {
         try {
             String url = System.getenv("SPRING_DATASOURCE_URL");
@@ -44,13 +51,22 @@ class ExcelController {
                         Workbook workbook = new XSSFWorkbook();
                         Sheet sheet = workbook.createSheet("Datos");
 
-                        // Agregar encabezados para la tabla clientes
+                        // Estilo de celda para el texto en negrita
+                        Font boldFont = workbook.createFont();
+                        boldFont.setBold(true);
+
+                        // Estilo para las celdas de encabezado (nombres de tablas)
+                        CellStyle headerStyle = workbook.createCellStyle();
+                        headerStyle.setFont(boldFont);
+
+                        // Agregar encabezado para la tabla clientes
                         ResultSetMetaData clientesMetaData = clientesResultSet.getMetaData();
                         int clientesColumnCount = clientesMetaData.getColumnCount();
                         Row clientesHeaderRow = sheet.createRow(0);
                         for (int i = 1; i <= clientesColumnCount; i++) {
                             Cell cell = clientesHeaderRow.createCell(i - 1);
                             cell.setCellValue(clientesMetaData.getColumnName(i));
+                            cell.setCellStyle(headerStyle); // Aplicar estilo de encabezado
                         }
 
                         // Agregar datos para la tabla clientes
@@ -63,13 +79,14 @@ class ExcelController {
                             }
                         }
 
-                        // Agregar encabezados para la tabla pago_mensual
+                        // Agregar encabezado para la tabla pago_mensual
                         ResultSetMetaData pagoMensualMetaData = pagoMensualResultSet.getMetaData();
                         int pagoMensualColumnCount = pagoMensualMetaData.getColumnCount();
                         Row pagoMensualHeaderRow = sheet.createRow(clientesRowCount);
                         for (int i = 1; i <= pagoMensualColumnCount; i++) {
                             Cell cell = pagoMensualHeaderRow.createCell(i - 1);
                             cell.setCellValue(pagoMensualMetaData.getColumnName(i));
+                            cell.setCellStyle(headerStyle); // Aplicar estilo de encabezado
                         }
 
                         // Agregar datos para la tabla pago_mensual
@@ -80,6 +97,11 @@ class ExcelController {
                                 Cell cell = row.createCell(i - 1);
                                 cell.setCellValue(pagoMensualResultSet.getString(i));
                             }
+                        }
+
+                        // Establecer el ancho de las columnas
+                        for (int i = 0; i < clientesColumnCount; i++) {
+                            sheet.setColumnWidth(i, 6000); // Establecer ancho de columna en unidades de 1/256th of a character width
                         }
 
                         // Escribir el libro de trabajo en un flujo de bytes
@@ -98,6 +120,32 @@ class ExcelController {
         }
         return null;
     }
+
+    @GetMapping("/reporte_Mensual")
+    public ResponseEntity<ByteArrayResource> exportExcel(
+            @RequestParam("categoria") String categoria,
+            @RequestParam("mesAno") String monthOfPayment) {
+        try {
+            // Obtener las variables de entorno
+            String url = System.getenv("SPRING_DATASOURCE_URL");
+            String username = System.getenv("SPRING_DATASOURCE_USERNAME");
+            String password = System.getenv("SPRING_DATASOURCE_PASSWORD");
+
+            // Generar el archivo Excel como un ByteArrayResource
+            ByteArrayResource resource = reporteService.generarExcelDeClientesYMontosTotales(url, username, password, categoria, monthOfPayment);
+
+            // Construir la respuesta con el archivo Excel
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=ReporteClientes.xlsx")
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .contentLength(resource.contentLength())
+                    .body(resource);
+        } catch (IOException | SQLException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+}
     //Hay que configurar el entorno para que funcione en deploy, pero funciona de forma local
 
 //    @PostMapping("/import")
@@ -218,4 +266,4 @@ class ExcelController {
 //        }
 //    }
 
-}
+
