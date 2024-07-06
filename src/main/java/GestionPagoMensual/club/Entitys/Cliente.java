@@ -31,5 +31,4 @@ public class Cliente {
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<PagoMensual> cronogramaPagos;
     private Estado estado;
-    private boolean pago;
     }
