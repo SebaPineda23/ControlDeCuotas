@@ -21,8 +21,6 @@ public class PagoMensual {
     private Long id;
     private String fecha;
     private ZonedDateTime fechaPago;
-    //atributo nuevo fechaVencimiento
-    private ZonedDateTime fechaVencimiento;
     private double monto;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "cliente_id")
