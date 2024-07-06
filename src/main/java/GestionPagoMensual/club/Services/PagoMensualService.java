@@ -88,6 +88,7 @@ public class PagoMensualService {
         // Actualizar el estado del cliente a PAGO después de guardar el nuevo pago
         cliente.setEstado(Estado.PAGO);
         cliente.setFechaCambioEstado(fechaActual);
+        cliente.setPago(true);
         clienteRepository.save(cliente);
 
         // Enviar correo electrónico (opcional)
