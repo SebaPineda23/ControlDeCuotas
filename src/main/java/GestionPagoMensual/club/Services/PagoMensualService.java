@@ -61,41 +61,22 @@ public class PagoMensualService {
         Cliente cliente = clienteRepository.findById(clienteId)
                 .orElseThrow(() -> new ExpressionException("Cliente no encontrado con ID: " + clienteId));
 
-        // Paso 2: Buscar el último pago del cliente
-        PagoMensual ultimoPago = pagoMensualRepository.findFirstByClienteOrderByFechaVencimientoDesc(cliente);
-
-        // Paso 3: Calcular la fecha de vencimiento del nuevo pago
-        ZonedDateTime fechaActual = ZonedDateTime.now();
-        ZonedDateTime fechaVencimientoNuevoPago;
-        if (ultimoPago != null && ultimoPago.getFechaVencimiento().isAfter(fechaActual)) {
-            fechaVencimientoNuevoPago = ultimoPago.getFechaVencimiento().plusDays(1); // Cambio aquí a 1 día
-        } else {
-            fechaVencimientoNuevoPago = fechaActual.plusDays(1); // Cambio aquí a 1 día
-        }
-
-        // Paso 4: Actualizar el estado del cliente
-        if (ultimoPago != null && fechaActual.isAfter(ultimoPago.getFechaVencimiento())) {
-            cliente.setEstado(Estado.NO_PAGO); // Estado se pone en NO_PAGO automáticamente
-        } else {
-            cliente.setEstado(Estado.PAGO);
-        }
-
         // Guardar el nuevo pago
         nuevoPago.setCliente(cliente);
-        nuevoPago.setFechaVencimiento(fechaVencimientoNuevoPago);
         PagoMensual pagoMensualGuardado = pagoMensualRepository.save(nuevoPago);
 
         // Actualizar el estado del cliente a PAGO después de guardar el nuevo pago
+        ZonedDateTime fechaActual = ZonedDateTime.now();
         cliente.setEstado(Estado.PAGO);
-        cliente.setFechaCambioEstado(fechaActual);
         cliente.setPago(true);
+        cliente.setFechaCambioEstado(fechaActual);
         clienteRepository.save(cliente);
 
         // Enviar correo electrónico (opcional)
         sendPaymentEmail(cliente, fechaActual);
 
-        // Programar una tarea para verificar el estado del cliente (opcional)
-        programarVerificacionEstadoCliente(cliente, fechaActual, fechaVencimientoNuevoPago);
+        // Programar verificación del estado del cliente para el día 7 de cada mes
+        programarVerificacionEstadoClienteDia7(cliente);
 
         return pagoMensualGuardado;
     }
@@ -106,22 +87,27 @@ public class PagoMensualService {
         authMail.sendMessage(cliente.getEmail(), mensaje);
     }
 
-    private void programarVerificacionEstadoCliente(Cliente cliente, ZonedDateTime fechaActual, ZonedDateTime fechaVencimientoNuevoPago) {
-        Runnable verificarEstadoCliente = () -> {
-            cambiarEstadoCliente(cliente);
-        };
+    private void programarVerificacionEstadoClienteDia7(Cliente cliente) {
+        // Obtener el próximo día 7 desde la fecha actual
+        ZonedDateTime now = ZonedDateTime.now();
+        ZonedDateTime nextDay7 = now.withDayOfMonth(7).withHour(0).withMinute(0).withSecond(0).withNano(0);
 
-        // Calcular el tiempo de espera para la tarea de verificación del estado del cliente (1 día)
-        long delay = Duration.between(fechaActual, fechaVencimientoNuevoPago).toDays();
+        // Si ya pasó el día 7 de este mes, calcular el día 7 del próximo mes
+        if (now.getDayOfMonth() >= 7) {
+            nextDay7 = nextDay7.plusMonths(1);
+        }
 
-        // Programar la tarea para que se ejecute cada 1 día
+        long initialDelay = Duration.between(now, nextDay7).toMillis();
+        long period = Duration.ofDays(1).toMillis(); // Verificar diariamente hasta llegar al día 7
+
+        // Programar la tarea para que se ejecute el día 7 de cada mes
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-        executorService.scheduleAtFixedRate(verificarEstadoCliente, delay, 1, TimeUnit.DAYS);
+        executorService.scheduleAtFixedRate(() -> cambiarEstadoCliente(cliente), initialDelay, period, TimeUnit.MILLISECONDS);
     }
 
     private void cambiarEstadoCliente(Cliente cliente) {
-        PagoMensual ultimoPago = pagoMensualRepository.findFirstByClienteOrderByFechaVencimientoDesc(cliente);
-        if (ultimoPago == null || ultimoPago.getFechaVencimiento().isBefore(ZonedDateTime.now())) {
+        // Verificar si hoy es el día 7
+        if (ZonedDateTime.now().getDayOfMonth() == 7) {
             cliente.setEstado(Estado.NO_PAGO);
             clienteRepository.save(cliente);
         }
