@@ -66,9 +66,10 @@ public class PagoMensualService {
 
         // Guardar el nuevo pago (si es necesario)
         nuevoPago.setCliente(cliente);
+        PagoMensual pagoMensualGuardado = pagoMensualRepository.save(nuevoPago);
         cliente.setFechaCambioEstado(fechaActual);
         cliente.setEstado(Estado.PAGO);
-        PagoMensual pagoMensualGuardado = pagoMensualRepository.save(nuevoPago);
+        clienteRepository.save(cliente);
 
         // Enviar correo electrónico (opcional)
         sendPaymentEmail(cliente, fechaActual);
