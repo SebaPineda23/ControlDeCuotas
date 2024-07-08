@@ -98,6 +98,8 @@ public class ReporteService {
                 if (datos == null || datos.getClientes().isEmpty()) {
                     throw new RuntimeException("No se encontraron clientes para la categoría y mes especificados.");
                 }
+                // Imprimir datos para depuración
+                System.out.println("Datos obtenidos: " + datos.getClientes().size() + " clientes.");
             } catch (Exception e) {
                 // Registrar y re-lanzar excepción
                 System.err.println("Error al obtener datos: " + e.getMessage());
@@ -138,6 +140,8 @@ public class ReporteService {
                     montoTotalCliente = cliente.getCronogramaPagos().stream()
                             .mapToDouble(PagoMensual::getMonto)
                             .sum();
+                    // Imprimir datos del cliente para depuración
+                    System.out.println("Cliente: " + cliente.getNombre() + " " + cliente.getApellido() + ", Monto Total: " + montoTotalCliente);
                 } catch (Exception e) {
                     // Registrar y re-lanzar excepción
                     System.err.println("Error al calcular el monto total para el cliente: " + cliente.getNombre() + " " + cliente.getApellido());
@@ -158,6 +162,8 @@ public class ReporteService {
 
             // Sumar los montos totales de todos los clientes
             double montoTotal = datos.getMontoTotal();
+            // Imprimir monto total para depuración
+            System.out.println("Monto Total: " + montoTotal);
             // Agregar el símbolo de peso ($) al monto total final
             String montoTotalConPeso = "$ " + montoTotal;
 
@@ -178,11 +184,8 @@ public class ReporteService {
 
             // Convertir el flujo de bytes en un recurso descargable
             byte[] excelBytes = outputStream.toByteArray();
-            ByteArrayResource resource = new ByteArrayResource(excelBytes);
-
-            return resource;
-        } catch (Exception e) {
-            // Registrar excepción y lanzar RuntimeException
+            return new ByteArrayResource(excelBytes);
+        } catch (SQLException | IOException e) {
             System.err.println("Error al generar el archivo Excel: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Error al generar el archivo Excel", e);
