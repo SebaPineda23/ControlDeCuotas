@@ -28,7 +28,7 @@ export default function PagosMensual() {
         className="bg-white p-5"
       >
         <Form.Item label="Mes" name="mes">
-          <Input />
+          <Input placeholder="Por ej: 01 = Enero" />
         </Form.Item>
         <Form.Item label="Año" name="año">
           <Input placeholder="Por ej: 2024" />

@@ -34,6 +34,7 @@ const useFilters = () => {
   const mes = useSelector(getMes);
   const año = useSelector(getAño);
   const categoria = useSelector(getCategoria);
+
   const handleAllSocios = async () => {
     try {
       const { data } = await axios.get(
@@ -45,6 +46,7 @@ const useFilters = () => {
       notificarError(error);
     }
   };
+
   const searchById = async (value) => {
     if (value.trim() !== "") {
       try {
@@ -57,7 +59,7 @@ const useFilters = () => {
           navigate(`/socio/${value}`);
         }
       } catch (error) {
-        if (error.response.status === 400) {
+        if (error.response.status === 400 || error.response.status === 404) {
           notifyError("No se encuentra un usuario con esa Id");
         }
       }
@@ -65,6 +67,7 @@ const useFilters = () => {
       notifyError("El campo de búsqueda está vacío");
     }
   };
+
   const searchByName = async (value) => {
     if (value.trim() !== "") {
       try {
@@ -83,6 +86,7 @@ const useFilters = () => {
       notifyError("El campo de búsqueda está vacío");
     }
   };
+
   const onFinish = async (values) => {
     try {
       const response = await axios.post(
@@ -99,6 +103,7 @@ const useFilters = () => {
       notifyError(error.response.data.error);
     }
   };
+
   const handleLogin = async (values) => {
     try {
       const response = await axios.post(
@@ -110,19 +115,19 @@ const useFilters = () => {
       dispatch(setAccess(response.data.access));
       dispatch(login());
     } catch (error) {
-      console.log(error);
       notificarError(error);
     }
   };
+
   const handleLogout = () => {
     dispatch(logout());
     navigate("/");
   };
+
   const pago = async (values) => {
     const { cliente_id, fecha, monto } = values;
     const partes = fecha.split("-");
     const nuevaFecha = partes[2] + "-" + partes[1] + "-" + partes[0];
-    console.log(nuevaFecha);
     try {
       const response = await axios.post(
         `https://controldecuotas.onrender.com/adm_clubes/pago_mensuales/${cliente_id}/pagos`,
@@ -138,6 +143,7 @@ const useFilters = () => {
       notificarError(error);
     }
   };
+
   const deleteSocios = async (value) => {
     try {
       await axios.delete(
@@ -150,6 +156,7 @@ const useFilters = () => {
       notificarError(error);
     }
   };
+
   const edit = async (values) => {
     try {
       const response = await axios.put(
@@ -166,6 +173,7 @@ const useFilters = () => {
       notificarError(error);
     }
   };
+
   const historialDePago = async (value) => {
     try {
       const response = await axios.get(
@@ -183,6 +191,7 @@ const useFilters = () => {
       }
     }
   };
+
   const allPagos = async () => {
     try {
       const response = await axios.get(
@@ -195,6 +204,7 @@ const useFilters = () => {
       notificarError(error);
     }
   };
+
   const handleMenuClick = async (itemKey) => {
     try {
       const response = await axios.get(
@@ -209,6 +219,7 @@ const useFilters = () => {
       console.log(error.message);
     }
   };
+
   const handlePagos = async (values) => {
     const { mes, año, categoria } = values;
     try {
@@ -216,7 +227,6 @@ const useFilters = () => {
         `https://controldecuotas.onrender.com/adm_clubes/clientes/clientesPorPagoMesYCategoria?mesAno=${mes}-${año}&categoria=${categoria}`
       );
       if (response.data.clientes.length > 0) {
-        console.log(response);
         dispatch(setFilterSocios(response.data.clientes));
         dispatch(setMontoTotal(response.data.montoTotal));
         dispatch(setMes(mes));
@@ -228,11 +238,12 @@ const useFilters = () => {
       notifyError(error);
     }
   };
-  const downloadData = async () => {
+
+  const downloadDataPDF = async () => {
     try {
       const response = await axios.get(
         `https://controldecuotas.onrender.com/adm_clubes/generacionPDF/reporte/pdf?categoria=${categoria}&mesAno=${mes}-${año}`,
-        { responseType: "blob" } // Asegúrate de recibir la respuesta como un blob
+        { responseType: "blob" }
       );
 
       if (response) {
@@ -241,17 +252,59 @@ const useFilters = () => {
         );
         const link = document.createElement("a");
         link.href = url;
-        link.setAttribute("download", `Reporte_${categoria}_${mes}_${año}.pdf`); // El nombre del archivo que se descargará
+        link.setAttribute("download", `Reporte_${categoria}_${mes}_${año}.pdf`);
         document.body.appendChild(link);
         link.click();
-        link.parentNode.removeChild(link); // Elimina el enlace después de hacer clic
+        link.parentNode.removeChild(link);
       }
     } catch (error) {
       console.log(error);
     }
   };
+  const downloadDataExcel = async () => {
+    try {
+      const response = await axios.get(
+        `https://controldecuotas.onrender.com/adm_clubes/excel/reporteMensual?categoria=${categoria}&mesAno=${mes}${año}`,
+        { responseType: "blob" }
+      );
+      console.log(response);
+      if (response) {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute(
+          "download",
+          `Reporte_${categoria}_${mes}_${año}.xlsx`
+        );
+        document.body.appendChild(link);
+        link.click();
+        link.parentNode.removeChild(link);
+      }
+    } catch (error) {
+      notifyError("Algo salio mal");
+      console.log(error);
+    }
+  };
+  const handleExtract = async () => {
+    try {
+      const response = await axios.get(
+        `https://controldecuotas.onrender.com/adm_clubes/excel/exportar_Todas_las_tablas`,
+        { responseType: "blob" }
+      );
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "exported_file.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+    } catch (error) {
+      console.error("Error downloading Excel file:", error);
+    }
+  };
 
   return {
+    handleExtract,
     handleAllSocios,
     handleMenuClick,
     searchById,
@@ -267,7 +320,9 @@ const useFilters = () => {
     handleLogin,
     handleLogout,
     handlePagos,
-    downloadData,
+    downloadDataPDF,
+    downloadDataExcel,
   };
 };
+
 export default useFilters;
