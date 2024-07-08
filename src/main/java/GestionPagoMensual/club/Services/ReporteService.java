@@ -91,11 +91,18 @@ public class ReporteService {
             String categoria, String monthOfPayment) throws IOException, SQLException {
         try (Connection connection = DriverManager.getConnection(url, username, password)) {
             // Obtener datos
-            ClientesYTotal datos = clienteService.getClientesByPagoMesAndCategoria(monthOfPayment, categoria);
-
-            // Verificar datos obtenidos
-            if (datos == null || datos.getClientes().isEmpty()) {
-                throw new RuntimeException("No se encontraron clientes para la categoría y mes especificados.");
+            ClientesYTotal datos;
+            try {
+                datos = clienteService.getClientesByPagoMesAndCategoria(monthOfPayment, categoria);
+                // Verificar datos obtenidos
+                if (datos == null || datos.getClientes().isEmpty()) {
+                    throw new RuntimeException("No se encontraron clientes para la categoría y mes especificados.");
+                }
+            } catch (Exception e) {
+                // Registrar y re-lanzar excepción
+                System.err.println("Error al obtener datos: " + e.getMessage());
+                e.printStackTrace();
+                throw new RuntimeException("Error al obtener datos", e);
             }
 
             // Crear el libro de trabajo y la hoja
@@ -126,9 +133,18 @@ public class ReporteService {
             int rowCount = 1;
             for (Cliente cliente : listaClientes) {
                 // Sumar los montos de los pagos del cliente
-                double montoTotalCliente = cliente.getCronogramaPagos().stream()
-                        .mapToDouble(PagoMensual::getMonto)
-                        .sum();
+                double montoTotalCliente;
+                try {
+                    montoTotalCliente = cliente.getCronogramaPagos().stream()
+                            .mapToDouble(PagoMensual::getMonto)
+                            .sum();
+                } catch (Exception e) {
+                    // Registrar y re-lanzar excepción
+                    System.err.println("Error al calcular el monto total para el cliente: " + cliente.getNombre() + " " + cliente.getApellido());
+                    e.printStackTrace();
+                    throw new RuntimeException("Error al calcular el monto total para el cliente", e);
+                }
+
                 // Agregar el símbolo de peso ($) al monto total
                 String montoConPeso = "$ " + montoTotalCliente;
 
@@ -165,6 +181,11 @@ public class ReporteService {
             ByteArrayResource resource = new ByteArrayResource(excelBytes);
 
             return resource;
+        } catch (Exception e) {
+            // Registrar excepción y lanzar RuntimeException
+            System.err.println("Error al generar el archivo Excel: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Error al generar el archivo Excel", e);
         }
     }
 }
