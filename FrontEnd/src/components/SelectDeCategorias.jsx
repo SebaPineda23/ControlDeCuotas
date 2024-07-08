@@ -12,7 +12,12 @@ export default function SelectDeCategorias({ value, onChange }) {
     { label: "8va", value: "8va" },
     { label: "9na", value: "9na" },
     { label: "10ma", value: "10ma" },
-    { label: "Infantiles", key: "Infantiles" },
+    { label: "Infantiles", value: "Infantiles" },
+    { label: "1raFemenino", value: "1raFem" },
+    { label: "Sub 11", value: "Sub 11" },
+    { label: "Sub 13", value: "Sub 13" },
+    { label: "Sub 15", value: "Sub 15" },
+    { label: "Sub 17", value: "Sub 17" },
   ];
   return (
     <Select

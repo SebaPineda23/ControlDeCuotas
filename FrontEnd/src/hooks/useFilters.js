@@ -264,10 +264,9 @@ const useFilters = () => {
   const downloadDataExcel = async () => {
     try {
       const response = await axios.get(
-        `https://controldecuotas.onrender.com/adm_clubes/excel/reporteMensual?categoria=${categoria}&mesAno=${mes}${año}`,
+        `https://controldecuotas.onrender.com/adm_clubes/excel/reporte_Mensual?categoria=${categoria}&mesAno=${mes}/${año}`,
         { responseType: "blob" }
       );
-      console.log(response);
       if (response) {
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement("a");
