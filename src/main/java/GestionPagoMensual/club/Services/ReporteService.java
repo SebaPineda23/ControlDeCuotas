@@ -93,6 +93,11 @@ public class ReporteService {
             // Obtener datos
             ClientesYTotal datos = clienteService.getClientesByPagoMesAndCategoria(monthOfPayment, categoria);
 
+            // Verificar datos obtenidos
+            if (datos == null || datos.getClientes().isEmpty()) {
+                throw new RuntimeException("No se encontraron clientes para la categoría y mes especificados.");
+            }
+
             // Crear el libro de trabajo y la hoja
             Workbook workbook = new XSSFWorkbook();
             Sheet sheet = workbook.createSheet("Datos");
@@ -110,7 +115,10 @@ public class ReporteService {
             clienteHeaderCell.setCellValue("Cliente");
             clienteHeaderCell.setCellStyle(boldStyle); // Aplicar estilo en negrita a la celda "Cliente"
 
-            headerRow.createCell(1).setCellValue("Total");
+            Cell totalHeaderCell = headerRow.createCell(1);
+            totalHeaderCell.setCellValue("Total");
+            totalHeaderCell.setCellStyle(boldStyle); // Aplicar estilo en negrita a la celda "Total"
+
             sheet.setColumnWidth(0, 8000);
 
             // Suponiendo que ClientesYTotal contiene una lista de clientes

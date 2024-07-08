@@ -57,7 +57,7 @@ public class ClienteService {
         if (letras1 != null && !letras1.isEmpty() && letras2 != null && !letras2.isEmpty()) {
             return clienteRepository.findByNombreContainingOrApellidoContaining(letras1, letras2);
         } else {
-            return null; // O devolver una lista vacía, dependiendo de los requisitos
+            return null; // O devolver una lista vacía
         }
     }
     public Cliente crearCliente(Cliente cliente) throws Exception{

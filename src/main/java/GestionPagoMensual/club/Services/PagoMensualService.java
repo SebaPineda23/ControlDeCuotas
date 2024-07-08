@@ -75,8 +75,8 @@ public class PagoMensualService {
         // Enviar correo electrónico (opcional)
         sendPaymentEmail(cliente, fechaActual);
 
-        // Programar verificación del estado del cliente para el día 7 de cada mes
-        programarVerificacionEstadoClienteDia7(cliente);
+        // Programar verificación del estado del cliente para el día 1 de cada mes
+        programarVerificacionEstadoClienteDia1(cliente);
 
         return pagoMensualGuardado;
     }
@@ -87,27 +87,27 @@ public class PagoMensualService {
         authMail.sendMessage(cliente.getEmail(), mensaje);
     }
 
-    private void programarVerificacionEstadoClienteDia7(Cliente cliente) {
-        // Obtener el próximo día 7 desde la fecha actual
+    private void programarVerificacionEstadoClienteDia1(Cliente cliente) {
+        // Obtener el próximo día 1 desde la fecha actual
         ZonedDateTime now = ZonedDateTime.now();
-        ZonedDateTime nextDay7 = now.withDayOfMonth(7).withHour(0).withMinute(0).withSecond(0).withNano(0);
+        ZonedDateTime nextDay1 = now.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
 
-        // Si ya pasó el día 7 de este mes, calcular el día 7 del próximo mes
-        if (now.getDayOfMonth() >= 7) {
-            nextDay7 = nextDay7.plusMonths(1);
+        // Si ya pasó el día 1 de este mes, calcular el día 1 del próximo mes
+        if (now.getDayOfMonth() >= 1) {
+            nextDay1 = nextDay1.plusMonths(1);
         }
 
-        long initialDelay = Duration.between(now, nextDay7).toMillis();
+        long initialDelay = Duration.between(now, nextDay1).toMillis();
         long period = Duration.ofDays(1).toMillis(); // Verificar diariamente hasta llegar al día 7
 
-        // Programar la tarea para que se ejecute el día 7 de cada mes
+        // Programar la tarea para que se ejecute el día 1 de cada mes
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         executorService.scheduleAtFixedRate(() -> cambiarEstadoCliente(cliente), initialDelay, period, TimeUnit.MILLISECONDS);
     }
 
     private void cambiarEstadoCliente(Cliente cliente) {
-        // Verificar si hoy es el día 7
-        if (ZonedDateTime.now().getDayOfMonth() == 7) {
+        // Verificar si hoy es el día 1
+        if (ZonedDateTime.now().getDayOfMonth() == 1) {
             cliente.setEstado(Estado.NO_PAGO);
             clienteRepository.save(cliente);
         }
