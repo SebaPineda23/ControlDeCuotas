@@ -5,9 +5,10 @@ import { getMontoTotal, getSociosFiltered } from "../redux/setSocios";
 import BackButton from "./BackButton";
 import { DownloadOutlined } from "@ant-design/icons";
 import useFilters from "../hooks/useFilters";
+import { Toaster } from "react-hot-toast";
 
 export default function TablaDeSociosPagos() {
-  const { downloadData } = useFilters();
+  const { downloadDataPDF, downloadDataExcel } = useFilters();
   const columns = [
     {
       title: "Id",
@@ -57,13 +58,22 @@ export default function TablaDeSociosPagos() {
         <h3 className="text-base">
           Monto total: ${montoTotal.toLocaleString()}
         </h3>
-        <button
-          onClick={downloadData}
-          className="bg-blue-600 text-white p-1 rounded-xl"
-        >
-          Descargar datos <DownloadOutlined />
-        </button>
+        <div>
+          <button
+            onClick={downloadDataPDF}
+            className="bg-blue-600 text-white p-1 rounded-xl mx-2"
+          >
+            Descargar datos en PDF <DownloadOutlined />
+          </button>
+          <button
+            onClick={downloadDataExcel}
+            className="bg-blue-600 text-white p-1 rounded-xl"
+          >
+            Descargar datos en Excel <DownloadOutlined />
+          </button>
+        </div>
       </div>
+      <Toaster />
     </div>
   );
 }
