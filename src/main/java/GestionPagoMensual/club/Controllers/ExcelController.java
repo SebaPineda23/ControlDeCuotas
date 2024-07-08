@@ -131,11 +131,6 @@ class ExcelController {
             String username = System.getenv("SPRING_DATASOURCE_USERNAME");
             String password = System.getenv("SPRING_DATASOURCE_PASSWORD");
 
-            // Verificar si las variables de entorno están presentes
-            if (url == null || username == null || password == null) {
-                throw new RuntimeException("Las variables de entorno para la base de datos no están configuradas.");
-            }
-
             // Generar el archivo Excel como un ByteArrayResource
             ByteArrayResource resource = reporteService.generarExcelDeClientesYMontosTotales(url, username, password, categoria, monthOfPayment);
 
@@ -147,16 +142,7 @@ class ExcelController {
                     .body(resource);
         } catch (IOException | SQLException e) {
             e.printStackTrace();
-            // Imprimir un mensaje de error para depuración
-            System.err.println("Error al generar el archivo Excel: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ByteArrayResource(new byte[0]));  // Retorna un recurso vacío para evitar una respuesta nula
-        } catch (RuntimeException e) {
-            e.printStackTrace();
-            // Imprimir un mensaje de error para depuración
-            System.err.println("Error de ejecución: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ByteArrayResource(new byte[0]));  // Retorna un recurso vacío para evitar una respuesta nula
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }
