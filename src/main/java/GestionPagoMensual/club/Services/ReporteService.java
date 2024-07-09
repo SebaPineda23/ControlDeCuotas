@@ -119,7 +119,7 @@ public class ReporteService {
             for (Cliente cliente : listaClientes) {
                 // Sumar los montos de los pagos del cliente
                 double montoTotalCliente = cliente.getCronogramaPagos().stream()
-                        .mapToDouble(PagoMensual::getMonto)
+                        .mapToDouble(pago -> pago.getMonto())
                         .sum();
                 // Agregar el símbolo de peso ($) al monto total
                 String montoConPeso = "$ " + montoTotalCliente;
