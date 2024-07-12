@@ -8,7 +8,7 @@ import useFilters from "../hooks/useFilters";
 import { Toaster } from "react-hot-toast";
 
 export default function TablaDeSociosPagos() {
-  const { downloadDataPDF, downloadDataExcel } = useFilters();
+  const { downloadDataPDF } = useFilters();
   const columns = [
     {
       title: "Id",
@@ -65,12 +65,12 @@ export default function TablaDeSociosPagos() {
           >
             Descargar datos en PDF <DownloadOutlined />
           </button>
-          <button
+          {/* <button
             onClick={downloadDataExcel}
             className="bg-blue-600 text-white p-1 rounded-xl"
           >
             Descargar datos en Excel <DownloadOutlined />
-          </button>
+          </button> */}
         </div>
       </div>
       <Toaster />
