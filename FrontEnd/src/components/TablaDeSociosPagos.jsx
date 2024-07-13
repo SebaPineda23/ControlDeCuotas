@@ -59,18 +59,18 @@ export default function TablaDeSociosPagos() {
           Monto total: ${montoTotal.toLocaleString()}
         </h3>
         <div>
-          {/* <button
+          <button
             onClick={downloadDataPDF}
             className="bg-blue-600 text-white p-1 rounded-xl mx-2"
           >
             Descargar datos en PDF <DownloadOutlined />
-          </button> */}
-          <button
+          </button>
+          {/* <button
             onClick={downloadDataExcel}
             className="bg-blue-600 text-white p-1 rounded-xl"
           >
             Descargar datos en Excel <DownloadOutlined />
-          </button>
+          </button> */}
         </div>
       </div>
       <Toaster />
