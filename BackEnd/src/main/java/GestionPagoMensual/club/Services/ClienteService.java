@@ -33,46 +33,16 @@ public class ClienteService {
             throw new Exception("Cliente no encontrado con ID: " + clienteId);
         }
     }
-    public List<Cliente> buscarClientesPorLetras(String letras1, String letras2) {
-        if (letras1 != null && !letras1.isEmpty() && letras2 != null && !letras2.isEmpty()) {
-            return clienteRepository.findByNombreContainingOrApellidoContaining(letras1, letras2);
-        } else {
-            return null; // O devolver una lista vacía, dependiendo de los requisitos
-        }
-    }
 
-    public Cliente crearCliente(Cliente cliente) throws Exception{
-        // Verificar si ya existe un cliente con el mismo DNI
-        Cliente clienteExistente = clienteRepository.findByDni(cliente.getDni());
-        if (clienteExistente != null) {
-            // Si ya existe un cliente con el mismo DNI, lanzar una excepción o manejar el caso apropiadamente
-            throw new Exception("El DNI ya está registrado");
-        }
+    public Cliente crearCliente(Cliente cliente) {
         cliente.setEstado(Estado.NO_PAGO);
         return clienteRepository.save(cliente);
     }
 
     public Cliente actualizarCliente(Long clienteId, Cliente cliente) throws Exception {
-        Optional<Cliente> clienteOptional = clienteRepository.findById(clienteId);
-        if (clienteOptional.isPresent()) {
-            Cliente clienteExistente = clienteOptional.get();
-
-            // Actualizar solo los campos necesarios
-            if (cliente.getNombre() != null) {
-                clienteExistente.setNombre(cliente.getNombre());
-            }
-            if (cliente.getApellido() != null) {
-                clienteExistente.setApellido(cliente.getApellido());
-            }
-            if (cliente.getDni() != null) {
-                clienteExistente.setDni(cliente.getDni());
-            }
-            if (cliente.getFecha_nacimiento() != null) {
-                clienteExistente.setFecha_nacimiento(cliente.getFecha_nacimiento());
-            }
-
-            // Guardar el cliente actualizado
-            return clienteRepository.save(clienteExistente);
+        if (clienteRepository.existsById(clienteId)) {
+            cliente.setId(clienteId);
+            return clienteRepository.save(cliente);
         } else {
             throw new Exception("Cliente no encontrado con ID: " + clienteId);
         }

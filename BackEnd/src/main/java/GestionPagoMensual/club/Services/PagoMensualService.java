@@ -34,6 +34,10 @@ public class PagoMensualService {
     }
 
 
+    public PagoMensual guardarFacturaMensual(PagoMensual pagoMensual) {
+        return pagoMensualRepository.save(pagoMensual);
+    }
+
     public List<PagoMensual> obtenerTodasLasFacturasMensuales() {
         return pagoMensualRepository.findAll();
     }
@@ -46,18 +50,34 @@ public class PagoMensualService {
         pagoMensualRepository.deleteById(id);
     }
 
-    public PagoMensual guardarFacturaMensual(PagoMensual nuevoPago, Long clienteId) throws Exception {
-        Cliente cliente = clienteRepository.findById(clienteId)
-                .orElseThrow(() -> new Exception("Cliente no encontrado con ID: " + clienteId));
+    @Transactional
+    public PagoMensual actualizarPago(Long idCliente, Long idPagoMensual) {
+        try {
+            PagoMensual pagoMensual = pagoMensualRepository.findById(idCliente)
+                    .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con id: " + idCliente));
 
-        cliente.setEstado(Estado.PAGO);
-        cliente.setPago(true);
-        cliente.setFechaCambioEstado(LocalDateTime.now());
-        nuevoPago.setCliente(cliente);
-        return pagoMensualRepository.save(nuevoPago);
+            Cliente cliente = clienteRepository.findById(idPagoMensual)
+                    .orElseThrow(() -> new ResourceNotFoundException("El pago mensual no fue encontrado con id: " + idPagoMensual));
+
+            pagoMensual.setCliente(cliente);
+            cliente.getCronogramaPagos().add(pagoMensual);
+
+            cliente.setEstado(Estado.PAGO);
+            cliente.setPago(true);
+
+            pagoMensual.setFechaCambioEstado(LocalDateTime.now()); // Se actualiza la fecha de cambio de estado
+
+            String fechaStr = pagoMensual.getFecha();
+            LocalDate fechaPago = LocalDate.parse(fechaStr, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+
+            clienteRepository.save(cliente);
+            return pagoMensualRepository.save(pagoMensual);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al actualizar el pago", e);
+        }
     }
-
-    @Scheduled(cron = "0 */5 * * * *") // Se ejecuta cada 5 minutos
+    @Scheduled(cron = "0 */5 * * * *") // Se ejecuta cada minuto
     public void revertirCambiosPagos() {
         // Obtener la fecha actual
         LocalDateTime fechaActual = LocalDateTime.now();
@@ -67,12 +87,15 @@ public class PagoMensualService {
 
         // Si la fecha actual es posterior a la fecha límite, se revierten los cambios
         if (fechaActual.isAfter(fechaLimite)) {
-            // Obtener los clientes que se modificaron después del tiempo determinado
-            List<Cliente> clientesModificados = clienteRepository.findByFechaCambioEstadoAfter(fechaLimite);
+            // Obtener los pagos que se modificaron después del tiempo determinado
+            List<PagoMensual> pagosModificados = pagoMensualRepository.findByFechaCambioEstadoAfter(fechaLimite);
 
-            for (Cliente cliente : clientesModificados) {
+            for (PagoMensual pagoMensual : pagosModificados) {
+                Cliente cliente = pagoMensual.getCliente(); // Se obtiene el cliente asociado al pago
+
                 cliente.setEstado(Estado.NO_PAGO);
                 cliente.setPago(false);
+
                 clienteRepository.save(cliente); // Se actualiza el cliente
             }
         }

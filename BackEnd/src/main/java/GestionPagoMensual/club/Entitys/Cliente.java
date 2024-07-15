@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -18,88 +17,27 @@ import java.util.List;
 @Entity
 public class Cliente {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private Long id;
     private String nombre;
     private String apellido;
     private String dni;
     private String fecha_nacimiento;
-    private LocalDateTime fechaCambioEstado;
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonIgnore
     private List<PagoMensual> cronogramaPagos;
     private Estado estado;
     private boolean pago;
 
-    public Long getId() {
-        return id;
+    public void registrarPago(double monto) {
+        // Lógica para registrar un nuevo pago
+        PagoMensual nuevoPago = new PagoMensual();
+        // Agregar el pago al cronograma de pagos del cliente
+        cronogramaPagos.add(nuevoPago);
+        // Actualizar el estado del cliente a "PAGO"
+        this.estado = Estado.PAGO;
+        // Actualizar el estado de pago a true
+        this.pago = true;
     }
 
-    public String getNombre() {
-        return nombre;
     }
-
-    public String getApellido() {
-        return apellido;
-    }
-
-    public String getDni() {
-        return dni;
-    }
-
-    public String getFecha_nacimiento() {
-        return fecha_nacimiento;
-    }
-
-    public List<PagoMensual> getCronogramaPagos() {
-        return cronogramaPagos;
-    }
-
-    public Estado getEstado() {
-        return estado;
-    }
-
-    public boolean isPago() {
-        return pago;
-    }
-
-    public void setPago(boolean pago) {
-        this.pago = pago;
-    }
-
-    public void setEstado(Estado estado) {
-        this.estado = estado;
-    }
-
-    public void setCronogramaPagos(List<PagoMensual> cronogramaPagos) {
-        this.cronogramaPagos = cronogramaPagos;
-    }
-
-    public LocalDateTime getFechaCambioEstado() {
-        return fechaCambioEstado;
-    }
-
-    public void setFechaCambioEstado(LocalDateTime fechaCambioEstado) {
-        this.fechaCambioEstado = fechaCambioEstado;
-    }
-
-    public void setFecha_nacimiento(String fecha_nacimiento) {
-        this.fecha_nacimiento = fecha_nacimiento;
-    }
-
-    public void setDni(String dni) {
-        this.dni = dni;
-    }
-
-    public void setApellido(String apellido) {
-        this.apellido = apellido;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-}
