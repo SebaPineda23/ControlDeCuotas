@@ -38,7 +38,7 @@ const useFilters = () => {
   const handleAllSocios = async () => {
     try {
       const { data } = await axios.get(
-        "https://controldecuotas.onrender.com/adm_clubes/clientes"
+        "https://controldecuotasportfolio.onrender.com/adm_clubes/clientes"
       );
       dispatch(setAllSocios(data));
       // notificarExito("Socios cargados exitosamente");
@@ -51,7 +51,7 @@ const useFilters = () => {
     if (value.trim() !== "") {
       try {
         const response = await axios.get(
-          "https://controldecuotas.onrender.com/adm_clubes/clientes/" + value
+          "https://controldecuotasportfolio.onrender.com/adm_clubes/clientes/" + value
         );
         if (response) {
           const dataAsArray = [{ ...response.data }];
@@ -72,7 +72,7 @@ const useFilters = () => {
     if (value.trim() !== "") {
       try {
         const response = await axios.get(
-          "https://controldecuotas.onrender.com/adm_clubes/clientes/buscarCliente?letras=" +
+          "https://controldecuotasportfolio.onrender.com/adm_clubes/clientes/buscarCliente?letras=" +
             value
         );
         if (response.data.length > 0) {
@@ -90,7 +90,7 @@ const useFilters = () => {
   const onFinish = async (values) => {
     try {
       const response = await axios.post(
-        "https://controldecuotas.onrender.com/adm_clubes/clientes",
+        "https://controldecuotasportfolio.onrender.com/adm_clubes/clientes",
         values
       );
       if (response.data) {
@@ -107,7 +107,7 @@ const useFilters = () => {
   const handleLogin = async (values) => {
     try {
       const response = await axios.post(
-        "https://controldecuotas.onrender.com/adm_clubes/usuario/login",
+        "https://controldecuotasportfolio.onrender.com/adm_clubes/usuario/login",
         values
       );
       dispatch(setUsername(response.data.username));
@@ -130,7 +130,7 @@ const useFilters = () => {
     const nuevaFecha = partes[2] + "-" + partes[1] + "-" + partes[0];
     try {
       const response = await axios.post(
-        `https://controldecuotas.onrender.com/adm_clubes/pago_mensuales/${cliente_id}/pagos`,
+        `https://controldecuotasportfolio.onrender.com/adm_clubes/pago_mensuales/${cliente_id}/pagos`,
         { fecha: nuevaFecha, monto }
       );
       if (response.data) {
@@ -147,7 +147,7 @@ const useFilters = () => {
   const deleteSocios = async (value) => {
     try {
       await axios.delete(
-        "https://controldecuotas.onrender.com/adm_clubes/clientes/" + value.id
+        "https://controldecuotasportfolio.onrender.com/adm_clubes/clientes/" + value.id
       );
       const updatedSocios = socios.filter((socio) => socio.id !== value.id);
       dispatch(setAllSocios(updatedSocios));
@@ -160,7 +160,7 @@ const useFilters = () => {
   const edit = async (values) => {
     try {
       const response = await axios.put(
-        "https://controldecuotas.onrender.com/adm_clubes/clientes/" + values.id,
+        "https://controldecuotasportfolio.onrender.com/adm_clubes/clientes/" + values.id,
         values
       );
       if (response.data) {
@@ -177,7 +177,7 @@ const useFilters = () => {
   const historialDePago = async (value) => {
     try {
       const response = await axios.get(
-        `https://controldecuotas.onrender.com/adm_clubes/pago_mensuales/cliente/${value.id}/pagos`
+        `https://controldecuotasportfolio.onrender.com/adm_clubes/pago_mensuales/cliente/${value.id}/pagos`
       );
       if (response.data) {
         dispatch(setHistorial(response.data));
@@ -195,7 +195,7 @@ const useFilters = () => {
   const allPagos = async () => {
     try {
       const response = await axios.get(
-        "https://controldecuotas.onrender.com/adm_clubes/pago_mensuales"
+        "https://controldecuotasportfolio.onrender.com/adm_clubes/pago_mensuales"
       );
       if (response) {
         dispatch(setAllPagos(response.data));
@@ -208,7 +208,7 @@ const useFilters = () => {
   const handleMenuClick = async (itemKey) => {
     try {
       const response = await axios.get(
-        "https://controldecuotas.onrender.com/adm_clubes/clientes/categoria/" +
+        "https://controldecuotasportfolio.onrender.com/adm_clubes/clientes/categoria/" +
           itemKey
       );
       if (response.data.length > 0) {
@@ -224,7 +224,7 @@ const useFilters = () => {
     const { mes, año, categoria } = values;
     try {
       const response = await axios.get(
-        `https://controldecuotas.onrender.com/adm_clubes/clientes/clientesPorPagoMesYCategoria?mesAno=${mes}-${año}&categoria=${categoria}`
+        `https://controldecuotasportfolio.onrender.com/adm_clubes/clientes/clientesPorPagoMesYCategoria?mesAno=${mes}-${año}&categoria=${categoria}`
       );
       if (response.data.clientes.length > 0) {
         dispatch(setFilterSocios(response.data.clientes));
@@ -242,7 +242,7 @@ const useFilters = () => {
   const downloadDataPDF = async () => {
     try {
       const response = await axios.get(
-        `https://controldecuotas.onrender.com/adm_clubes/generacionPDF/reporte/pdf?categoria=${categoria}&mesAno=${mes}-${año}`,
+        `https://controldecuotasportfolio.onrender.com/adm_clubes/generacionPDF/reporte/pdf?categoria=${categoria}&mesAno=${mes}-${año}`,
         { responseType: "blob" }
       );
 
@@ -264,7 +264,7 @@ const useFilters = () => {
   const downloadDataExcel = async () => {
     try {
       const response = await axios.get(
-        `https://controldecuotas.onrender.com/adm_clubes/excel/reporte_Mensual?categoria=${categoria}&mesAno=${mes}/${año}`,
+        `https://controldecuotasportfolio.onrender.com/adm_clubes/excel/reporte_Mensual?categoria=${categoria}&mesAno=${mes}/${año}`,
         { responseType: "blob" }
       );
       if (response) {
@@ -287,7 +287,7 @@ const useFilters = () => {
   const handleExtract = async () => {
     try {
       const response = await axios.get(
-        `https://controldecuotas.onrender.com/adm_clubes/excel/exportar_Todas_las_tablas`,
+        `https://controldecuotasportfolio.onrender.com/adm_clubes/excel/exportar_Todas_las_tablas`,
         { responseType: "blob" }
       );
       const url = window.URL.createObjectURL(new Blob([response.data]));
