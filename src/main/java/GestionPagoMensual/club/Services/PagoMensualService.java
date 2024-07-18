@@ -72,7 +72,6 @@ public class PagoMensualService {
         switch (opcionPago) {
             case 1:
                 // Pagar meses adeudados sin la cuota actual, no cambia el estado a PAGO
-                cliente.setEstado(Estado.NO_PAGO);
                 break;
             case 2:
                 // Realizar pago mes actual, cambiar el estado a PAGO y establecer la fecha de vencimiento
