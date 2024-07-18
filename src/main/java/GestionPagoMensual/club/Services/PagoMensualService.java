@@ -8,6 +8,7 @@ import GestionPagoMensual.club.Entitys.PagoMensual;
 import GestionPagoMensual.club.Repositories.ClienteRepository;
 import GestionPagoMensual.club.Repositories.PagoMensualRepository;
 
+import org.aspectj.bridge.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 
@@ -16,7 +17,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -56,33 +59,75 @@ public class PagoMensualService {
         pagoMensualRepository.deleteById(id);
     }
 
-    public PagoMensual guardarFacturaMensual(PagoMensual nuevoPago, Long clienteId) {
-        // Paso 1: Obtener el cliente
+    public PagoMensual guardarFacturaMensual(PagoMensual nuevoPago, Long clienteId, int opcionPago) {
         Cliente cliente = clienteRepository.findById(clienteId)
                 .orElseThrow(() -> new ExpressionException("Cliente no encontrado con ID: " + clienteId));
 
-        // Guardar el nuevo pago
+        // Establecer la fecha actual en la zona horaria de Argentina
+        ZonedDateTime fechaActualArgentina = ZonedDateTime.now(ZoneId.of("America/Argentina/Buenos_Aires"));
+
         nuevoPago.setCliente(cliente);
+        nuevoPago.setFechaPago(fechaActualArgentina);
+
+        switch (opcionPago) {
+            case 1:
+                // Pagar meses adeudados sin la cuota actual, no cambia el estado a PAGO
+                cliente.setEstado(Estado.NO_PAGO);
+                break;
+            case 2:
+                // Realizar pago mes actual, cambiar el estado a PAGO y establecer la fecha de vencimiento
+                cliente.setEstado(Estado.PAGO);
+                cliente.setPago(true);
+                cliente.setFechaCambioEstado(fechaActualArgentina);
+
+                // Establecer la fecha de vencimiento como el primer día del mes siguiente
+                ZonedDateTime fechaVencimiento = fechaActualArgentina.plusMonths(1).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
+                nuevoPago.setFechaVencimiento(fechaVencimiento);
+                break;
+            default:
+                throw new IllegalArgumentException("Opción de pago no válida");
+        }
+
+        // Guardar el nuevo pago
         PagoMensual pagoMensualGuardado = pagoMensualRepository.save(nuevoPago);
 
-        // Actualizar el estado del cliente a PAGO después de guardar el nuevo pago
-        ZonedDateTime fechaActual = ZonedDateTime.now();
-        cliente.setEstado(Estado.PAGO);
-        cliente.setPago(true);
-        cliente.setFechaCambioEstado(fechaActual);
-        clienteRepository.save(cliente);
-
         // Enviar correo electrónico (opcional)
-        sendPaymentEmail(cliente, fechaActual);
+        String mensajeCorreo = null;
+        if (cliente.getEmail() != null) {
+            LocalDate fecha = LocalDate.parse(nuevoPago.getFecha(), DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+            String nombreMes = obtenerNombreMesDesdeFecha(fecha);
+            sendPaymentEmail(cliente, fechaActualArgentina, nombreMes);
+        } else {
+            mensajeCorreo = "Se registró el pago pero el Socio no cuenta con un email registrado.";
+        }
 
         // Programar verificación del estado del cliente para el día 1 de cada mes
         programarVerificacionEstadoClienteDia1(cliente);
 
+        // Guardar cambios del cliente
+        clienteRepository.save(cliente);
+
+        // Si hay un mensaje de correo, mostrarlo en la consola o registrar en el log
+        if (mensajeCorreo != null) {
+            System.out.println(mensajeCorreo);
+        }
+
         return pagoMensualGuardado;
     }
+    private String obtenerNombreMesDesdeFecha(LocalDate fecha) {
+        // Obtener el nombre del mes en español desde la fecha
+         String mes = fecha.getMonth().getDisplayName(TextStyle.FULL, new Locale("es", "ES"));
+        return mayuscula(mes);
+    }
+    private String mayuscula(String str) {
+        if (str == null || str.isEmpty()) {
+            return str;
+        }
+        return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
+    }
 
-    private void sendPaymentEmail(Cliente cliente, ZonedDateTime fechaCreacionPago) {
-        String mensaje = "Hola " + cliente.getNombre() + ",\n\nGracias por realizar el pago de la cuota. El pago se efectuó el día " + fechaCreacionPago.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + "\n\nSaludos,\nEl equipo de gestión del club";
+    private void sendPaymentEmail(Cliente cliente, ZonedDateTime fechaCreacionPago, String nombreMes) {
+        String mensaje = "Hola " + cliente.getNombre() + ",\n\nGracias por realizar el pago de la cuota correspondiente al mes de " + nombreMes + ". El pago se efectuó el día " + fechaCreacionPago.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + "\n\nSaludos,\nEl equipo de gestión del club";
 
         authMail.sendMessage(cliente.getEmail(), mensaje);
     }
