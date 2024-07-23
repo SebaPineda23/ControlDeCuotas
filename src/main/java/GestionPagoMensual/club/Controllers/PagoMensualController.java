@@ -56,7 +56,15 @@ public class PagoMensualController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontraron pagos mensuales asociados al Cliente con el ID: " + idCliente);
         }
     }
-
+    @PutMapping("/update/{id}")
+    public ResponseEntity<PagoMensual> actualizarPagoMensual(@PathVariable Long id, @RequestBody PagoMensual pagoMensual) {
+        try {
+            PagoMensual pagoActualizado = pagoMensualService.updatePagoMensual(id, pagoMensual);
+            return ResponseEntity.ok(pagoActualizado);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarFacturaMensual(@PathVariable Long id) {
         pagoMensualService.eliminarFacturaMensualPorId(id);

@@ -20,6 +20,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -38,7 +39,18 @@ public class PagoMensualService {
         this.pagoMensualRepository = pagoMensualRepository;
         this.clienteRepository = clienteRepository;
     }
-
+    public PagoMensual updatePagoMensual(Long pagoMensualId, PagoMensual pagoMensual) throws Exception{
+        Optional<PagoMensual> pagoMensualOptional= pagoMensualRepository.findById(pagoMensualId);
+        if(pagoMensualOptional.isPresent()){
+            PagoMensual pagoMensualExistente =pagoMensualOptional.get();
+            if (pagoMensual.getMonto()!=0){
+                pagoMensualExistente.setMonto(pagoMensual.getMonto());
+            }
+            return pagoMensualRepository.save(pagoMensualExistente);
+        }else{
+            throw new Exception("Pago no existente con el id: "+pagoMensualId);
+        }
+    }
 
     public List<PagoMensual> obtenerTodasLasFacturasMensuales() {
         return pagoMensualRepository.findAll();
