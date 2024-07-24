@@ -23,11 +23,10 @@ public class PagoMensualController {
     @PostMapping("/{clienteId}/pagos")
     public ResponseEntity<String> crearPago(
             @PathVariable Long clienteId,
-            @RequestBody PagoMensual nuevoPago,
-            @RequestParam int opcionPago
+            @RequestBody PagoMensual nuevoPago
     ) throws Exception {
         try {
-            PagoMensual pagoCreado = pagoMensualService.guardarFacturaMensual(nuevoPago, clienteId, opcionPago);
+            PagoMensual pagoCreado = pagoMensualService.guardarFacturaMensual(nuevoPago, clienteId);
             return ResponseEntity.ok("Pago registrado exitosamente para el cliente con ID: " + clienteId +
                     ". ID del nuevo pago mensual: " + pagoCreado.getId());
         } catch (Exception e) {
