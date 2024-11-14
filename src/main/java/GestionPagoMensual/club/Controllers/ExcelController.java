@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.sql.*;
+import java.util.Iterator;
 
 @RestController
 @AllArgsConstructor
@@ -147,123 +148,136 @@ class ExcelController {
     }
     //Hay que configurar el entorno para que funcione en deploy, pero funciona de forma local
 
-    @PostMapping("/import")
-    public String importFromExcel(@RequestParam("file") MultipartFile excelFile) {
-        try (InputStream inputStream = excelFile.getInputStream();
-             Workbook workbook = new XSSFWorkbook(inputStream)) {
-
-            // Obtener la URL, nombre de usuario y contraseña de las variables de entorno
-            String url = System.getenv("SPRING_DATASOURCE_URL");
-            String username = System.getenv("SPRING_DATASOURCE_USERNAME");
-            String password = System.getenv("SPRING_DATASOURCE_PASSWORD");
-
-            try (Connection connection = DriverManager.getConnection(url, username, password)) {
-                // Desactivar autocommit
-                connection.setAutoCommit(false);
-
-                Sheet sheet = workbook.getSheetAt(0);
-
-                String sql = "INSERT INTO cliente (id, apellido, categoria, dni, email, estado, fecha_cambio_estado, fecha_nacimiento, nombre, pago) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                PreparedStatement statement = connection.prepareStatement(sql);
-
-                for (Row row : sheet) {
-                    if (row.getRowNum() == 0) {
-                        continue; // Skip header row
-                    }
-
-                    try {
-                        Long id = (long) getNumericCellValue(row.getCell(0), 0);
-                        String apellido = getStringCellValue(row.getCell(1), 1);
-                        String categoria = getStringCellValue(row.getCell(2), 2);
-                        String dni = getStringCellValue(row.getCell(3), 3);
-                        String email = getStringCellValue(row.getCell(4), 4);
-                        int estado = (int) getNumericCellValue(row.getCell(5), 5);
-                        String fechaCambioEstado = getStringCellValue(row.getCell(6), 6);
-                        String fechaNacimiento = getStringCellValue(row.getCell(7), 7);
-                        String nombre = getStringCellValue(row.getCell(8), 8);
-                        double pago = getNumericCellValue(row.getCell(9), 9);
-
-                        statement.setLong(1, id);
-                        statement.setString(2, apellido);
-                        statement.setString(3, categoria);
-                        statement.setString(4, dni);
-                        statement.setString(5, email);
-                        statement.setInt(6, estado);
-
-                        if (fechaCambioEstado.isEmpty()) {
-                            statement.setNull(7, java.sql.Types.TIMESTAMP);
-                        } else {
-                            statement.setString(7, fechaCambioEstado);
-                        }
-
-                        statement.setString(8, fechaNacimiento);
-                        statement.setString(9, nombre);
-                        statement.setDouble(10, pago);
-
-                        statement.addBatch();
-                    } catch (IllegalStateException | NumberFormatException e) {
-                        return "Error en la fila " + (row.getRowNum() + 1) + ", columna " + (e.getMessage());
-                    }
-                }
-
-                statement.executeBatch();
-                connection.commit();
-
-                statement.close();
-
-                // Restablecer autocommit a true
-                connection.setAutoCommit(true);
-
-                return "Datos importados en la tabla cliente con éxito";
-
-            } catch (SQLException e) {
-                e.printStackTrace();
-                return "Error al conectar a la base de datos";
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "Error al importar datos desde el archivo Excel";
-        }
-    }
-
-    private double getNumericCellValue(Cell cell, int columnIndex) {
-        if (cell == null) {
-            throw new IllegalStateException("La celda en la columna " + columnIndex + " está vacía");
-        }
-        switch (cell.getCellType()) {
-            case NUMERIC:
-                return cell.getNumericCellValue();
-            case STRING:
-                try {
-                    return Double.parseDouble(cell.getStringCellValue());
-                } catch (NumberFormatException e) {
-                    throw new IllegalStateException("No se puede convertir el valor de la celda en la columna " + columnIndex + " a un número");
-                }
-            case BLANK:
-                return 0.0; // O un valor por defecto apropiado para tu caso
-            default:
-                throw new IllegalStateException("El tipo de celda en la columna " + columnIndex + " no es numérico");
-        }
-    }
-    private String getStringCellValue(Cell cell, int columnIndex) {
-        if (cell == null) {
-            throw new IllegalStateException("celda vacía en la columna " + columnIndex);
-        }
-        switch (cell.getCellType()) {
-            case STRING:
-                return cell.getStringCellValue();
-            case NUMERIC:
-                return String.valueOf(cell.getNumericCellValue());
-            case BOOLEAN:
-                return String.valueOf(cell.getBooleanCellValue());
-            case FORMULA:
-                return cell.getCellFormula();
-            case BLANK:
-                return "";
-            default:
-                throw new IllegalStateException("tipo de celda no compatible en la columna " + columnIndex);
-        }
-    }
+//    @PostMapping("/import")
+//    public String importFromExcel(@RequestParam("file") MultipartFile excelFile) {
+//        String url = System.getenv("SPRING_DATASOURCE_URL");
+//        String username = System.getenv("SPRING_DATASOURCE_USERNAME");
+//        String password = System.getenv("SPRING_DATASOURCE_PASSWORD");
+//
+//        try (InputStream inputStream = excelFile.getInputStream();
+//             Workbook workbook = new XSSFWorkbook(inputStream)) {
+//
+//            // Obtener la conexión desde las variables de entorno
+//            try (Connection connection = DriverManager.getConnection(url, username, password)) {
+//                // Desactivar autocommit
+//                connection.setAutoCommit(false);
+//
+//                Sheet sheet = workbook.getSheetAt(0);
+//
+//                String sql = "INSERT INTO cliente (id, apellido, categoria, dni, email, estado, fecha_cambio_estado, fecha_nacimiento, nombre, pago) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+//                try (PreparedStatement statement = connection.prepareStatement(sql)) {
+//
+//                    // Iterar sobre las filas del Excel una a una
+//                    Iterator<Row> rowIterator = sheet.iterator();
+//                    rowIterator.next(); // Saltar la fila de encabezados
+//
+//                    while (rowIterator.hasNext()) {
+//                        Row row = rowIterator.next();
+//
+//                        try {
+//                            Long id = (long) getNumericCellValue(row.getCell(0), 0);
+//                            String apellido = getStringCellValue(row.getCell(1), 1);
+//                            String categoria = getStringCellValue(row.getCell(2), 2);
+//                            String dni = getStringCellValue(row.getCell(3), 3);
+//                            String email = getStringCellValue(row.getCell(4), 4);
+//                            int estado = (int) getNumericCellValue(row.getCell(5), 5);
+//                            String fechaCambioEstado = getStringCellValue(row.getCell(6), 6);
+//                            String fechaNacimiento = getStringCellValue(row.getCell(7), 7);
+//                            String nombre = getStringCellValue(row.getCell(8), 8);
+//                            double pago = getNumericCellValue(row.getCell(9), 9);
+//
+//                            // Configurar los parámetros del PreparedStatement
+//                            statement.setLong(1, id);
+//                            statement.setString(2, apellido);
+//                            statement.setString(3, categoria);
+//                            statement.setString(4, dni);
+//                            statement.setString(5, email);
+//                            statement.setInt(6, estado);
+//
+//                            // Manejar fechaCambioEstado: si está vacío, se establece como NULL
+//                            if (fechaCambioEstado.isEmpty()) {
+//                                statement.setNull(7, java.sql.Types.TIMESTAMP);
+//                            } else {
+//                                statement.setString(7, fechaCambioEstado);
+//                            }
+//
+//                            // Configurar las demás columnas
+//                            statement.setString(8, fechaNacimiento);
+//                            statement.setString(9, nombre);
+//                            statement.setDouble(10, pago);
+//
+//                            // Agregar a la batch
+//                            statement.addBatch();
+//
+//                            // Ejecutar la batch cada N filas (ejemplo cada 100)
+//                            if (row.getRowNum() % 100 == 0) {
+//                                statement.executeBatch();
+//                            }
+//                        } catch (IllegalStateException | NumberFormatException e) {
+//                            return "Error en la fila " + (row.getRowNum() + 1) + ", columna " + (e.getMessage());
+//                        }
+//                    }
+//
+//                    // Ejecutar el batch restante
+//                    statement.executeBatch();
+//                    connection.commit(); // Confirmar los cambios en la base de datos
+//
+//                    return "Datos importados en la tabla cliente con éxito";
+//
+//                } catch (SQLException e) {
+//                    e.printStackTrace();
+//                    return "Error al ejecutar la consulta SQL: " + e.getMessage();
+//                }
+//
+//            } catch (SQLException e) {
+//                e.printStackTrace();
+//                return "Error al conectar a la base de datos: " + e.getMessage();
+//            }
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            return "Error al importar datos desde el archivo Excel: " + e.getMessage();
+//        }
+//    }
+//
+//    private double getNumericCellValue(Cell cell, int columnIndex) {
+//        if (cell == null) {
+//            throw new IllegalStateException("La celda en la columna " + columnIndex + " está vacía");
+//        }
+//        switch (cell.getCellType()) {
+//            case NUMERIC:
+//                return cell.getNumericCellValue();
+//            case STRING:
+//                try {
+//                    return Double.parseDouble(cell.getStringCellValue());
+//                } catch (NumberFormatException e) {
+//                    throw new IllegalStateException("No se puede convertir el valor de la celda en la columna " + columnIndex + " a un número");
+//                }
+//            case BLANK:
+//                return 0.0; // O un valor por defecto apropiado para tu caso
+//            default:
+//                throw new IllegalStateException("El tipo de celda en la columna " + columnIndex + " no es numérico");
+//        }
+//    }
+//    private String getStringCellValue(Cell cell, int columnIndex) {
+//        if (cell == null) {
+//            throw new IllegalStateException("celda vacía en la columna " + columnIndex);
+//        }
+//        switch (cell.getCellType()) {
+//            case STRING:
+//                return cell.getStringCellValue();
+//            case NUMERIC:
+//                return String.valueOf(cell.getNumericCellValue());
+//            case BOOLEAN:
+//                return String.valueOf(cell.getBooleanCellValue());
+//            case FORMULA:
+//                return cell.getCellFormula();
+//            case BLANK:
+//                return "";
+//            default:
+//                throw new IllegalStateException("tipo de celda no compatible en la columna " + columnIndex);
+//        }
+//    }
 }
 
 
