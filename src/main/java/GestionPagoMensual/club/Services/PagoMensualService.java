@@ -83,9 +83,9 @@ public class PagoMensualService {
         ZonedDateTime fechaActual = ZonedDateTime.now();
         ZonedDateTime fechaVencimientoNuevoPago;
         if (ultimoPago != null && ultimoPago.getFechaVencimiento().isAfter(fechaActual)) {
-            fechaVencimientoNuevoPago = ultimoPago.getFechaVencimiento().plusDays(30); // Cambio aquí a 1 día
+            fechaVencimientoNuevoPago = ultimoPago.getFechaVencimiento().plusDays(1); // Cambio aquí a 1 día
         } else {
-            fechaVencimientoNuevoPago = fechaActual.plusDays(30); // Cambio aquí a 1 día
+            fechaVencimientoNuevoPago = fechaActual.plusDays(1); // Cambio aquí a 1 día
         }
 
         // Paso 4: Actualizar el estado del cliente
