@@ -8,7 +8,6 @@ import GestionPagoMensual.club.Entitys.PagoMensual;
 import GestionPagoMensual.club.Repositories.ClienteRepository;
 import GestionPagoMensual.club.Repositories.PagoMensualRepository;
 
-import org.aspectj.bridge.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 
@@ -17,9 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.time.format.TextStyle;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -40,6 +37,25 @@ public class PagoMensualService {
         this.clienteRepository = clienteRepository;
     }
 
+
+    public List<PagoMensual> obtenerTodasLasFacturasMensuales() {
+        return pagoMensualRepository.findAll();
+    }
+
+    public List<PagoMensual> obtenerPagosMensualesPorIdCliente(Long idCliente) {
+        return pagoMensualRepository.findByClienteId(idCliente);
+    }
+    public List<PagoMensual> getPagosByMes(String mesAno) {
+        return pagoMensualRepository.findPagosByMes(mesAno);
+    }
+
+    public double calcularMontoTotalPorCategoriaYMes(String mesAno, String categoria) {
+        return pagoMensualRepository.calcularMontoTotalPorCategoriaYMes(mesAno, categoria);
+    }
+
+    public void eliminarFacturaMensualPorId(Long id) {
+        pagoMensualRepository.deleteById(id);
+    }
     public PagoMensual updatePagoMensual(Long pagoMensualId, PagoMensual pagoMensual) throws Exception {
         Optional<PagoMensual> pagoMensualOptional = pagoMensualRepository.findById(pagoMensualId);
         if (pagoMensualOptional.isPresent()) {
@@ -53,84 +69,73 @@ public class PagoMensualService {
         }
     }
 
-    public List<PagoMensual> obtenerTodasLasFacturasMensuales() {
-        return pagoMensualRepository.findAll();
-    }
-
-    public List<PagoMensual> obtenerPagosMensualesPorIdCliente(Long idCliente) {
-        return pagoMensualRepository.findByClienteId(idCliente);
-    }
-
-    public List<PagoMensual> getPagosByMes(String mesAno) {
-        return pagoMensualRepository.findPagosByMes(mesAno);
-    }
-
-    public double calcularMontoTotalPorCategoriaYMes(String mesAno, String categoria) {
-        return pagoMensualRepository.calcularMontoTotalPorCategoriaYMes(mesAno, categoria);
-    }
-
-    public void eliminarFacturaMensualPorId(Long id) {
-        pagoMensualRepository.deleteById(id);
-    }
-
-    public PagoMensual guardarFacturaMensual(PagoMensual nuevoPago, Long clienteId) throws Exception {
+    public PagoMensual guardarFacturaMensual(PagoMensual nuevoPago, Long clienteId) {
+        // Paso 1: Obtener el cliente
         Cliente cliente = clienteRepository.findById(clienteId)
-                .orElseThrow(() -> new Exception("Cliente no encontrado con ID: " + clienteId));
+                .orElseThrow(() -> new ExpressionException("Cliente no encontrado con ID: " + clienteId));
 
-        ZonedDateTime horaActualLocal = ZonedDateTime.now(ZoneId.systemDefault());
-        ZonedDateTime fechaCreacionPago = horaActualLocal;
+        // Paso 2: Buscar el último pago del cliente
+        PagoMensual ultimoPago = pagoMensualRepository.findFirstByClienteOrderByFechaVencimientoDesc(cliente);
 
-        Estado estadoAnterior = cliente.getEstado();
-        cliente.setEstado(Estado.PAGO);
-        cliente.setPago(true);
-        cliente.setFechaCambioEstado(horaActualLocal);
+        // Paso 3: Calcular la fecha de vencimiento del nuevo pago
+        ZonedDateTime fechaActual = ZonedDateTime.now();
+        ZonedDateTime fechaVencimientoNuevoPago;
+        if (ultimoPago != null && ultimoPago.getFechaVencimiento().isAfter(fechaActual)) {
+            fechaVencimientoNuevoPago = ultimoPago.getFechaVencimiento().plusDays(1); // Cambio aquí a 1 día
+        } else {
+            fechaVencimientoNuevoPago = fechaActual.plusDays(1); // Cambio aquí a 1 día
+        }
+
+        // Paso 4: Actualizar el estado del cliente
+        if (ultimoPago != null && fechaActual.isAfter(ultimoPago.getFechaVencimiento())) {
+            cliente.setEstado(Estado.NO_PAGO); // Estado se pone en NO_PAGO automáticamente
+        } else {
+            cliente.setEstado(Estado.PAGO);
+        }
+
+        // Guardar el nuevo pago
         nuevoPago.setCliente(cliente);
-
+        nuevoPago.setFechaVencimiento(fechaVencimientoNuevoPago);
         PagoMensual pagoMensualGuardado = pagoMensualRepository.save(nuevoPago);
 
-        sendPaymentEmail(cliente, fechaCreacionPago);
+        // Actualizar el estado del cliente a PAGO después de guardar el nuevo pago
+        cliente.setEstado(Estado.PAGO);
+        cliente.setFechaCambioEstado(fechaActual);
+        clienteRepository.save(cliente);
 
-        Runnable verificarEstadoCliente = () -> {
-            ZonedDateTime horaActual = ZonedDateTime.now(ZoneId.systemDefault());
+        // Enviar correo electrónico (opcional)
+        sendPaymentEmail(cliente, fechaActual);
 
-            int cantidadPagos = cliente.getCronogramaPagos().size();
-            long diasTranscurridos = cantidadPagos * Duration.between(
-                    fechaCreacionPago.toLocalDate().atStartOfDay(),
-                    horaActual.toLocalDate().atStartOfDay()
-            ).toDays();
-
-            int limiteDias = estadoAnterior == Estado.PAGO ? (cantidadPagos + 1) : 1;
-
-            if (diasTranscurridos >= limiteDias) {
-                long diasTotales = Duration.between(
-                        fechaCreacionPago.toLocalDate().atStartOfDay(),
-                        horaActual.toLocalDate().atStartOfDay()
-                ).toDays();
-                if (diasTotales >= 1) {
-                    cambiarEstadoCliente(clienteId);
-                }
-            }
-        };
-
-        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-        executorService.scheduleAtFixedRate(verificarEstadoCliente, 0, 1, TimeUnit.DAYS);
+        // Programar una tarea para verificar el estado del cliente (opcional)
+        programarVerificacionEstadoCliente(cliente, fechaActual, fechaVencimientoNuevoPago);
 
         return pagoMensualGuardado;
     }
 
     private void sendPaymentEmail(Cliente cliente, ZonedDateTime fechaCreacionPago) {
-        String mensaje = "Hola " + cliente.getNombre() + ",\n\nGracias por realizar el pago de la cuota. " +
-                "El pago se efectuó el día " + fechaCreacionPago.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) +
-                "\n\nSaludos,\nEl equipo de gestión del club";
+        String mensaje = "Hola " + cliente.getNombre() + ",\n\nGracias por realizar el pago de la cuota. El pago se efectuó el día " + fechaCreacionPago.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + "\n\nSaludos,\nEl equipo de gestión del club";
 
         authMail.sendMessage(cliente.getEmail(), mensaje);
     }
 
-    private void cambiarEstadoCliente(Long clienteId) {
-        Cliente clienteParaActualizar = clienteRepository.findById(clienteId).orElse(null);
-        if (clienteParaActualizar != null) {
-            clienteParaActualizar.setEstado(Estado.NO_PAGO);
-            clienteRepository.save(clienteParaActualizar);
+    private void programarVerificacionEstadoCliente(Cliente cliente, ZonedDateTime fechaActual, ZonedDateTime fechaVencimientoNuevoPago) {
+        Runnable verificarEstadoCliente = () -> {
+            cambiarEstadoCliente(cliente);
+        };
+
+        // Calcular el tiempo de espera para la tarea de verificación del estado del cliente (1 día)
+        long delay = Duration.between(fechaActual, fechaVencimientoNuevoPago).toDays();
+
+        // Programar la tarea para que se ejecute cada 1 día
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        executorService.scheduleAtFixedRate(verificarEstadoCliente, delay, 1, TimeUnit.DAYS);
+    }
+
+    private void cambiarEstadoCliente(Cliente cliente) {
+        PagoMensual ultimoPago = pagoMensualRepository.findFirstByClienteOrderByFechaVencimientoDesc(cliente);
+        if (ultimoPago == null || ultimoPago.getFechaVencimiento().isBefore(ZonedDateTime.now())) {
+            cliente.setEstado(Estado.NO_PAGO);
+            clienteRepository.save(cliente);
         }
     }
 }
