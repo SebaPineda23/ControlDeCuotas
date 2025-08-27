@@ -14,13 +14,13 @@ docker-build-on-commit:
   before_script:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
   script:
+    - echo "Building and pushing the Docker image..."
+    # Build and tag the image with the commit slug
     - docker build --pull -t "$DOCKER_IMAGE_NAME" .
     - docker push "$DOCKER_IMAGE_NAME"
-    - |
-      if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
-        docker tag "$DOCKER_IMAGE_NAME" "$CI_REGISTRY_IMAGE:latest"
-        docker push "$CI_REGISTRY_IMAGE:latest"
-      fi
+    # Tag and push with `latest` to ensure the cronjob always finds it
+    - docker tag "$DOCKER_IMAGE_NAME" "$CI_REGISTRY_IMAGE:latest"
+    - docker push "$CI_REGISTRY_IMAGE:latest"
   # Run this job on every branch commit where a Dockerfile exists.
   rules:
     - if: '$CI_COMMIT_BRANCH'
@@ -39,9 +39,9 @@ cronjob-task:
   script:
     - echo "Running the scheduled cronjob..."
     # Pull the latest Docker image
-    - docker pull $CI_REGISTRY_IMAGE:latest
+    - docker pull "$CI_REGISTRY_IMAGE:latest"
     # Run the Docker container
-    - docker run $CI_REGISTRY_IMAGE:latest
+    - docker run "$CI_REGISTRY_IMAGE:latest"
   # This is the crucial rule. It runs only when a pipeline is triggered by a schedule.
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
