@@ -40,8 +40,16 @@ cronjob-task:
     - echo "Running the scheduled cronjob..."
     # Pull the latest Docker image
     - docker pull "$CI_REGISTRY_IMAGE:latest"
-    # Run the Docker container
-    - docker run "$CI_REGISTRY_IMAGE:latest"
+    # Run the Docker container and pass the environment variables
+    - docker run \
+      -e SPRING_MAIL_HOST="$SPRING_MAIL_HOST" \
+      -e SPRING_MAIL_PORT="$SPRING_MAIL_PORT" \
+      -e SPRING_MAIL_USERNAME="$SPRING_MAIL_USERNAME" \
+      -e SPRING_MAIL_PASSWORD="$SPRING_MAIL_PASSWORD" \
+      -e SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH="$SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH" \
+      -e SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE="$SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE" \
+      -e SPRING_MAIL_PROPERTIES_MAIL_SMTP_TIMEOUT="$SPRING_MAIL_PROPERTIES_MAIL_SMTP_TIMEOUT" \
+      "$CI_REGISTRY_IMAGE:latest"
   # This is the crucial rule. It runs only when a pipeline is triggered by a schedule.
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
