@@ -101,17 +101,17 @@ public class PagoMensualService {
         clienteRepository.save(cliente);
 
         // 5. Enviar correo electrónico
-        sendPaymentEmail(cliente, fechaActual);
+        //sendPaymentEmail(cliente, fechaActual);
 
         return pagoMensualGuardado;
     }
 
-    private void sendPaymentEmail(Cliente cliente, ZonedDateTime fechaCreacionPago) {
-        String mensaje = String.format(
-                "Hola %s,\n\nGracias por realizar el pago de la cuota. El pago se efectuó el día %s\n\nSaludos,\nEl equipo de gestión del club",
-                cliente.getNombre(),
-                fechaCreacionPago.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-        );
-        authMail.sendMessage(cliente.getEmail(), mensaje);
-    }
+//    private void sendPaymentEmail(Cliente cliente, ZonedDateTime fechaCreacionPago) {
+//        String mensaje = String.format(
+//                "Hola %s,\n\nGracias por realizar el pago de la cuota. El pago se efectuó el día %s\n\nSaludos,\nEl equipo de gestión del club",
+//                cliente.getNombre(),
+//                fechaCreacionPago.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+//        );
+//        authMail.sendMessage(cliente.getEmail(), mensaje);
+//    }
 }
